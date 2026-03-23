@@ -1,0 +1,8 @@
+.next/
+node_modules/
+.env.local
+outreach.db
+outreach.db-shm
+outreach.db-wal
+sessions/
+*.session.json
