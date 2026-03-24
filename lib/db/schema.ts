@@ -16,6 +16,14 @@ export const leads = sqliteTable("leads", {
   reviewCount: integer("review_count"),
   status: text("status").notNull().default("discovered"),
   // discovered → matched → monitoring → draft_ready → engaged → rejected
+  emailDay: integer("email_day").notNull().default(0), // 0 = not started, 1–14 = sequence day sent
+  lastEmailedAt: text("last_emailed_at"), // ISO datetime of last send
+  emailAddress: text("email_address"), // scraped contact email
+  // ── Call tracking ─────────────────────────────────────────────────────────
+  callStatus: text("call_status").default("not_called"),
+  // not_called | called_no_answer | called_vm | booked | not_interested | dnc
+  calledAt: text("called_at"), // ISO datetime of last call attempt
+  callNotes: text("call_notes"), // Jason's notes from the call
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
   updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });

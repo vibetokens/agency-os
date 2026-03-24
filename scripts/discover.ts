@@ -37,44 +37,61 @@ async function searchPlaces(
   city: string,
   apiKey: string
 ): Promise<PlacesSearchResult[]> {
-  const params = new URLSearchParams({
-    query: `${query} in ${city}`,
-    key: apiKey,
-    type: "establishment",
-  });
-
   const res = await fetch(
-    `https://maps.googleapis.com/maps/api/place/textsearch/json?${params}`
+    "https://places.googleapis.com/v1/places:searchText",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount",
+      },
+      body: JSON.stringify({ textQuery: `${query} in ${city}` }),
+    }
   );
   const data = await res.json();
 
-  if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-    throw new Error(`Places API error: ${data.status} — ${data.error_message ?? ""}`);
+  if (!res.ok) {
+    throw new Error(`Places API error: ${data.error?.message ?? res.statusText}`);
   }
 
-  return data.results ?? [];
+  return (data.places ?? []).map((p: any) => ({
+    place_id: p.id,
+    name: p.displayName?.text ?? "",
+    formatted_address: p.formattedAddress,
+    rating: p.rating,
+    user_ratings_total: p.userRatingCount,
+  }));
 }
 
 async function getPlaceDetails(
   placeId: string,
   apiKey: string
 ): Promise<PlacesResult> {
-  const params = new URLSearchParams({
-    place_id: placeId,
-    fields: "place_id,name,formatted_address,formatted_phone_number,website,rating,user_ratings_total",
-    key: apiKey,
-  });
-
   const res = await fetch(
-    `https://maps.googleapis.com/maps/api/place/details/json?${params}`
+    `https://places.googleapis.com/v1/places/${placeId}`,
+    {
+      headers: {
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount",
+      },
+    }
   );
   const data = await res.json();
 
-  if (data.status !== "OK") {
-    throw new Error(`Place Details API error: ${data.status}`);
+  if (!res.ok) {
+    throw new Error(`Place Details API error: ${data.error?.message ?? res.statusText}`);
   }
 
-  return data.result;
+  return {
+    place_id: data.id,
+    name: data.displayName?.text ?? "",
+    formatted_address: data.formattedAddress,
+    formatted_phone_number: data.nationalPhoneNumber,
+    website: data.websiteUri,
+    rating: data.rating,
+    user_ratings_total: data.userRatingCount,
+  };
 }
 
 function parseArgs(): { niche: string; city: string; limit: number } {
