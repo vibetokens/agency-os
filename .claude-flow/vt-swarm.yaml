@@ -1,0 +1,51 @@
+# VT Outreach Swarm Configuration
+# Usage: claude-flow swarm start --config .claude-flow/vt-swarm.yaml
+
+name: vt-outreach
+description: VibeTokens lead gen + content machine. Target $50k/month.
+
+# Coordinator agent — routes tasks to the right specialist
+coordinator:
+  type: orchestrator
+  memory: true
+  instructions: |
+    You are the VT operations coordinator. Route tasks to the correct agent:
+    - Pipeline status / what's running → ops-monitor
+    - Who to call today / hot leads → lead-monitor
+    - Launch a new ICP niche → icp-launcher
+    - Blog post / LinkedIn / email content → content-writer
+    Always check memory for business rules before acting.
+
+agents:
+  - name: ops-monitor
+    file: .claude/agents/ops-monitor.md
+    type: specialist
+
+  - name: lead-monitor
+    file: .claude/agents/lead-monitor.md
+    type: specialist
+
+  - name: icp-launcher
+    file: .claude/agents/icp-launcher.md
+    type: specialist
+
+  - name: content-writer
+    file: .claude/agents/content-writer.md
+    type: specialist
+
+# Scheduled tasks the swarm can run
+tasks:
+  morning-brief:
+    description: Run ops check + surface call-ready leads for the day
+    agents: [ops-monitor, lead-monitor]
+    schedule: "0 6 * * *"
+
+  content-daily:
+    description: Write one blog post targeting active ICP keywords
+    agents: [content-writer]
+    schedule: "0 10 * * 1,3,5"  # Mon/Wed/Fri
+
+  icp-expand:
+    description: Discover and seed 30 leads for each active ICP that has < 20 in pool
+    agents: [ops-monitor, icp-launcher]
+    trigger: manual
