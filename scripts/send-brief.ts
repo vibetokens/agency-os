@@ -20,7 +20,7 @@ const TO = "jasonmatthewmurphy@gmail.com";
 
 // ── Scoring ───────────────────────────────────────────────────────────────────
 
-type Priority = "intake" | "hot" | "warm" | "follow";
+type Priority = "intake" | "replied" | "hot" | "warm" | "follow";
 
 function score(lead: typeof leads.$inferSelect): { priority: Priority; reason: string } | null {
   const cs = lead.callStatus ?? "not_called";
@@ -36,6 +36,12 @@ function score(lead: typeof leads.$inferSelect): { priority: Priority; reason: s
   // Intake submissions — top priority, always call same day
   if (lead.status === "intake") {
     return { priority: "intake", reason: "Submitted intake form on vibetokens.io" };
+  }
+
+  // Replied to an email — call immediately, they're warm
+  if (lead.repliedAt && cs === "not_called") {
+    const snippet = lead.replySnippet ? ` · "${lead.replySnippet.slice(0, 80)}"` : "";
+    return { priority: "replied", reason: `Replied to email sequence${snippet}` };
   }
 
   // No phone = can't call
@@ -69,6 +75,7 @@ function score(lead: typeof leads.$inferSelect): { priority: Priority; reason: s
 
 const PRIORITY_COLOR: Record<Priority, string> = {
   intake:  "#00FFB2",
+  replied: "#FF2D78",
   hot:     "#FF6B35",
   warm:    "#FFD700",
   follow:  "#8B8FA8",
@@ -76,12 +83,13 @@ const PRIORITY_COLOR: Record<Priority, string> = {
 
 const PRIORITY_LABEL: Record<Priority, string> = {
   intake:  "INTAKE · CALL NOW",
+  replied: "REPLIED · CALL NOW",
   hot:     "HOT",
   warm:    "WARM",
   follow:  "FOLLOW-UP",
 };
 
-function buildHtml(callList: Array<{ lead: typeof leads.$inferSelect; priority: Priority; reason: string }>, stats: { total: number; active: number; booked: number; sentToday: number }) {
+function buildHtml(callList: Array<{ lead: typeof leads.$inferSelect; priority: Priority; reason: string }>, stats: { total: number; active: number; booked: number; replied: number; sentToday: number }) {
   const now = new Date().toLocaleString("en-US", {
     weekday: "long", month: "short", day: "numeric",
     hour: "numeric", minute: "2-digit", hour12: true,
@@ -141,6 +149,7 @@ function buildHtml(callList: Array<{ lead: typeof leads.$inferSelect; priority: 
             ${[
               ["Total Leads", stats.total],
               ["In Sequence", stats.active],
+              ["Replied", stats.replied],
               ["Booked", stats.booked],
               ["Sent Today", stats.sentToday],
             ].map(([label, val]) => `
@@ -193,7 +202,7 @@ async function main() {
   }
 
   // Sort: intake > hot > warm > follow
-  const ORDER: Priority[] = ["intake", "hot", "warm", "follow"];
+  const ORDER: Priority[] = ["intake", "replied", "hot", "warm", "follow"];
   callList.sort((a, b) => ORDER.indexOf(a.priority) - ORDER.indexOf(b.priority));
 
   // Cap at 10 per brief — more than that is noise
@@ -205,6 +214,7 @@ async function main() {
     total: allLeads.length,
     active: allLeads.filter((l) => l.emailDay > 0 && l.emailDay < 14).length,
     booked: allLeads.filter((l) => l.callStatus === "booked").length,
+    replied: allLeads.filter((l) => l.repliedAt != null).length,
     sentToday: allLeads.filter((l) => l.lastEmailedAt?.startsWith(today)).length,
   };
 

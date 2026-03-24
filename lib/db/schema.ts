@@ -24,6 +24,9 @@ export const leads = sqliteTable("leads", {
   // not_called | called_no_answer | called_vm | booked | not_interested | dnc
   calledAt: text("called_at"), // ISO datetime of last call attempt
   callNotes: text("call_notes"), // Jason's notes from the call
+  // ── Reply tracking ────────────────────────────────────────────────────────
+  repliedAt: text("replied_at"),      // ISO datetime of first reply detection
+  replySnippet: text("reply_snippet"), // First 200 chars of the reply
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
   updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });
