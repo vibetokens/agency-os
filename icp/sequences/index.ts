@@ -4,6 +4,7 @@ import { medSpaSequence } from "./med-spa";
 import { claudeConsultingSequence } from "./claude-consulting";
 import { dentalSequence } from "./dental";
 import { chiropracticSequence } from "./chiropractic";
+import { agencySequence } from "./agency";
 import { genericSequence } from "./generic";
 
 // ── ICP registry ──────────────────────────────────────────────────────────────
@@ -17,7 +18,7 @@ const ICP_REGISTRY = [
     landing: "https://vibetokens.io/med-spa",
   },
   {
-    niches: ["consulting", "consultant", "marketing agency", "digital agency", "business coach", "life coach", "coach", "advisor"],
+    niches: ["consulting", "consultant", "business coach", "life coach", "coach", "advisor"],
     sequence: claudeConsultingSequence,
     landing: "https://vibetokens.io/services/claude-consulting",
   },
@@ -30,6 +31,11 @@ const ICP_REGISTRY = [
     niches: ["chiropractor", "chiropractic", "chiro", "physical therapy", "spine", "sports medicine"],
     sequence: chiropracticSequence,
     landing: "https://vibetokens.io/chiropractic",
+  },
+  {
+    niches: ["agency", "digital agency", "marketing agency", "creative agency", "boutique agency", "ad agency", "media agency", "web agency", "seo agency", "social media agency"],
+    sequence: agencySequence,
+    landing: "https://vibetokens.io/agency",
   },
 ];
 

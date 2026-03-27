@@ -18,7 +18,9 @@
     "email": "npx tsx --env-file=.env.local scripts/email-outreach.ts",
     "pipeline": "npx tsx --env-file=.env.local scripts/run-pipeline.ts",
     "brief": "npx tsx --env-file=.env.local scripts/send-brief.ts",
-    "check-replies": "npx tsx --env-file=.env.local scripts/check-replies.ts"
+    "check-replies": "npx tsx --env-file=.env.local scripts/check-replies.ts",
+    "log-deal": "npx tsx --env-file=.env.local scripts/log-deal.ts",
+    "draft-content": "npx tsx --env-file=.env.local scripts/draft-content.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

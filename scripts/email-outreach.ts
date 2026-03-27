@@ -150,6 +150,7 @@ async function main() {
     const allLeads = await db.select().from(leads).limit(limit * 3);
     leadsToProcess = allLeads
       .filter((l) => l.website)
+      .filter((l) => l.status !== "bounced")
       .filter((l) => {
         if (l.emailDay === 0) return true; // never emailed
         if (l.emailDay >= 14) return false; // sequence complete

@@ -76,6 +76,36 @@ export const comments = sqliteTable("comments", {
   updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
 });
 
+// ── Clients ───────────────────────────────────────────────────────────────────
+// Active, churned, and prospect clients
+export const clients = sqliteTable("clients", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  contact: text("contact"),                                          // primary contact name
+  email: text("email"),
+  status: text("status").notNull().default("active"),                // active | churned | prospect
+  mrr: real("mrr").notNull().default(0),                             // monthly recurring revenue
+  notes: text("notes"),
+  lastTouchAt: text("last_touch_at"),                                // ISO date of last interaction
+  nextAction: text("next_action"),                                    // what to do next
+  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+});
+
+// ── Deals ─────────────────────────────────────────────────────────────────────
+// Individual revenue events (one-time + recurring)
+export const deals = sqliteTable("deals", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id").references(() => clients.id),
+  type: text("type").notNull(),             // starter_site | growth_retainer | claude_consulting | guide
+  amount: real("amount").notNull(),
+  billingType: text("billing_type").notNull().default("one_time"),   // one_time | monthly
+  status: text("status").notNull().default("active"),                // active | completed | cancelled
+  closedAt: text("closed_at"),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+});
+
 // ── Type exports ──────────────────────────────────────────────────────────────
 export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
@@ -85,3 +115,7 @@ export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;
+export type Client = typeof clients.$inferSelect;
+export type NewClient = typeof clients.$inferInsert;
+export type Deal = typeof deals.$inferSelect;
+export type NewDeal = typeof deals.$inferInsert;

@@ -90,12 +90,38 @@ Set `active: true`. Report: leads queued, first email subjects, landing page URL
 
 ## ABSOLUTE RULES
 
-1. **Zero Toptal/VT crossover** — Never source leads from Jason's email, desktop, or any Toptal context
-2. **Test before batch** — Always dry-run, always send Day 1 to Jason first
-3. **ICP-specific copy** — No generic emails. If you can't tell which niche an email is for, rewrite it
-4. **No pricing on landing pages** — Drive to intake bot (Murph)
-5. **Brief before call** — Jason calls leads flagged in the brief. Don't add unsourced leads
-6. **BCC on Day 1** — jasonmatthewmurphy@gmail.com + esnod.mua@gmail.com
+<rules>
+
+<rule id="toptal-crossover">
+NEVER source leads from Jason's email, desktop files, or any Toptal/OneClean context.
+Complete separation between VT outreach and Toptal engagement — always.
+Check: Could this lead have come from a Toptal source? If any doubt, discard it.
+</rule>
+
+<rule id="test-before-batch">
+ALWAYS dry-run before any batch send. ALWAYS send Day 1 email to Jason (jasonmatthewmurphy@gmail.com) before firing.
+This means EVERY time — new ICP, sequence rewrite, any change to email content. No exceptions.
+Check: Has Jason seen the Day 1 email for this ICP/sequence version? If not, stop — send test first.
+</rule>
+
+<rule id="icp-copy">
+NEVER send generic emails. Every email must be clearly ICP-specific.
+Check: Could this email be for any niche? If yes, rewrite it with niche-specific language.
+</rule>
+
+<rule id="no-pricing-landing">
+NEVER show pricing on Vibe Tokens landing pages. Everything routes to intake bot (Murph).
+</rule>
+
+<rule id="bcc-day1">
+Day 1 emails must BCC: jasonmatthewmurphy@gmail.com
+</rule>
+
+<rule id="operationalize">
+When a pipeline bug or sequence issue is found: fix it, check all active ICPs for the same issue, update this file.
+</rule>
+
+</rules>
 
 ---
 

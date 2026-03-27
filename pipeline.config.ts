@@ -84,21 +84,21 @@ export const PIPELINE: IcpConfig[] = [
 
   {
     niche: "marketing agency",
-    slug: "claude-consulting",
+    slug: "agency",
     cities: [
-      "Cleveland Ohio",
-      "Columbus Ohio",
-      "Cincinnati Ohio",
-      "Pittsburgh Pennsylvania",
-      "Nashville Tennessee",
       "Austin Texas",
       "Denver Colorado",
+      "Nashville Tennessee",
       "Atlanta Georgia",
       "Charlotte North Carolina",
+      "Dallas Texas",
+      "Seattle Washington",
+      "Chicago Illinois",
+      "Minneapolis Minnesota",
       "Phoenix Arizona",
     ],
-    landingPage: "https://vibetokens.io/services/claude-consulting",
-    dailyTarget: 20,
-    active: true,
+    landingPage: "https://vibetokens.io/agency",
+    dailyTarget: 15,
+    active: false, // activate after reviewing Day 1 test email
   },
 ];

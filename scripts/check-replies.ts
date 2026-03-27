@@ -29,6 +29,9 @@ function ensureColumns(db: Database.Database) {
   if (!names.includes("reply_snippet")) {
     db.prepare("ALTER TABLE leads ADD COLUMN reply_snippet TEXT").run();
   }
+  if (!names.includes("bounced_at")) {
+    db.prepare("ALTER TABLE leads ADD COLUMN bounced_at TEXT").run();
+  }
 }
 
 // ── Auto-reply / bounce filter ────────────────────────────────────────────────
@@ -74,6 +77,101 @@ function classifyReply(subject: string, body: string): "interested" | "not_inter
   return "replied";
 }
 
+// ── Bounce detection ─────────────────────────────────────────────────────────
+// Searches for mailer-daemon delivery failure emails, extracts the bounced
+// address, and marks the matching lead as bounced so it stops getting emailed.
+
+async function checkBounces(
+  client: ImapFlow,
+  db: Database.Database,
+  dryRun: boolean
+): Promise<number> {
+  // Build a map of all lead email addresses we've sent to
+  const emailedLeads = db
+    .prepare(
+      `SELECT id, business_name, email_address
+       FROM leads
+       WHERE email_address IS NOT NULL
+         AND email_day > 0
+         AND (status IS NULL OR status != 'bounced')`
+    )
+    .all() as { id: number; business_name: string; email_address: string }[];
+
+  if (emailedLeads.length === 0) return 0;
+
+  const emailToLead = new Map(
+    emailedLeads.map((l) => [l.email_address.toLowerCase(), l])
+  );
+
+  // Search for delivery failure messages in the last 60 days
+  const since = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  const lock = await client.getMailboxLock("INBOX");
+  let bounced = 0;
+
+  try {
+    const uids = await client.search(
+      {
+        since,
+        or: [
+          { from: "mailer-daemon" },
+          { from: "postmaster" },
+        ],
+      },
+      { uid: true }
+    );
+
+    if (uids.length === 0) return 0;
+
+    for await (const msg of client.fetch(
+      uids.join(","),
+      { envelope: true, source: true, uid: true },
+      { uid: true }
+    )) {
+      // Parse raw message source for any email address matching a lead we've sent to
+      const raw = msg.source?.toString() ?? "";
+
+      // Look for standard DSN Final-Recipient header first, then fall back to
+      // scanning the full body for a matching address
+      const finalRecipientMatch = raw.match(/Final-Recipient:\s*rfc822;\s*([^\s\r\n]+)/i);
+      const candidates: string[] = [];
+
+      if (finalRecipientMatch?.[1]) {
+        candidates.push(finalRecipientMatch[1].toLowerCase());
+      } else {
+        // Extract all email-like strings from the body and check against leads
+        const allEmails = raw.match(/[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}/g) ?? [];
+        candidates.push(...allEmails.map((e) => e.toLowerCase()));
+      }
+
+      for (const addr of candidates) {
+        const lead = emailToLead.get(addr);
+        if (!lead) continue;
+
+        const subject = msg.envelope?.subject ?? "(no subject)";
+        console.log(`  BOUNCE: ${lead.business_name} <${addr}> — "${subject}"`);
+
+        if (!dryRun) {
+          const now = new Date().toISOString();
+          db.prepare(
+            `UPDATE leads
+             SET status = 'bounced', bounced_at = ?, email_day = 14, updated_at = ?
+             WHERE id = ?`
+          ).run(now, now, lead.id);
+          // Remove from map so we don't double-count if multiple bounce messages exist
+          emailToLead.delete(addr);
+        }
+
+        bounced++;
+        break; // one bounce per message is enough
+      }
+    }
+  } finally {
+    lock.release();
+  }
+
+  return bounced;
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -92,15 +190,106 @@ async function main() {
     )
     .all() as { id: number; business_name: string; email_address: string; call_status: string }[];
 
+  let foundCount = 0;
+
   if (leads.length === 0) {
-    console.log("No unreplied leads with email addresses.");
-    db.close();
-    return;
+    console.log("No unreplied leads with email addresses — skipping reply check.");
+  } else {
+    console.log(`Searching Gmail for replies from ${leads.length} leads...`);
+
+    const client = new ImapFlow({
+      host: "imap.gmail.com",
+      port: 993,
+      secure: true,
+      auth: {
+        user: process.env.GMAIL_USER!,
+        pass: process.env.GMAIL_APP_PASSWORD!,
+      },
+      logger: false,
+    });
+
+    await client.connect();
+
+    try {
+      const lock = await client.getMailboxLock("INBOX");
+
+      try {
+        const emailAddresses = leads.map((l) => l.email_address.toLowerCase());
+        const emailToLead = new Map(leads.map((l) => [l.email_address.toLowerCase(), l]));
+
+        const BATCH = 20;
+        const matchedUids = new Set<number>();
+
+        for (let i = 0; i < emailAddresses.length; i += BATCH) {
+          const batch = emailAddresses.slice(i, i + BATCH);
+          let query: object;
+          if (batch.length === 1) {
+            query = { from: batch[0] };
+          } else {
+            query = batch.reduceRight<object>(
+              (acc, addr, idx) => idx === batch.length - 1 ? { from: addr } : { or: [{ from: addr }, acc] },
+              { from: batch[batch.length - 1] }
+            );
+          }
+          const uids = await client.search(query, { uid: true });
+          for (const uid of uids) matchedUids.add(uid as number);
+        }
+
+        if (matchedUids.size > 0) {
+          console.log(`Found ${matchedUids.size} potential repl${matchedUids.size === 1 ? "y" : "ies"} — fetching details...`);
+          const uidList = Array.from(matchedUids).join(",");
+
+          for await (const msg of client.fetch(uidList, { envelope: true, uid: true }, { uid: true })) {
+            const fromAddr = msg.envelope?.from?.[0]?.address?.toLowerCase();
+            if (!fromAddr) continue;
+
+            const lead = emailToLead.get(fromAddr);
+            if (!lead) continue;
+
+            const subject = msg.envelope?.subject ?? "";
+
+            if (isAutoReply(fromAddr, subject)) {
+              console.log(`  SKIP (auto-reply): ${fromAddr} — "${subject}"`);
+              continue;
+            }
+
+            const intent = classifyReply(subject, "");
+            const snippet = `${subject}`.trim().slice(0, 200);
+            const now = new Date().toISOString();
+
+            const newCallStatus =
+              intent === "unsubscribe" ? "dnc" :
+              intent === "not_interested" ? "not_interested" :
+              lead.call_status;
+
+            console.log(`REPLY [${intent.toUpperCase()}]: ${lead.business_name} <${fromAddr}> — "${subject}"`);
+
+            if (!DRY_RUN) {
+              db.prepare(
+                `UPDATE leads SET replied_at = ?, reply_snippet = ?, call_status = ?, updated_at = ? WHERE id = ?`
+              ).run(now, snippet, newCallStatus, now, lead.id);
+            }
+
+            foundCount++;
+          }
+        }
+      } finally {
+        lock.release();
+      }
+    } finally {
+      await client.logout();
+    }
+
+    if (foundCount === 0) {
+      console.log("No new replies found.");
+    } else {
+      console.log(`\n${foundCount} repl${foundCount === 1 ? "y" : "ies"} processed.${DRY_RUN ? " (dry-run — no writes)" : ""}`);
+    }
   }
 
-  console.log(`Searching Gmail for replies from ${leads.length} leads...`);
-
-  const client = new ImapFlow({
+  // ── Bounce pass ────────────────────────────────────────────────────────────
+  console.log("\nChecking for bounced addresses...");
+  const client2 = new ImapFlow({
     host: "imap.gmail.com",
     port: 993,
     secure: true,
@@ -110,100 +299,17 @@ async function main() {
     },
     logger: false,
   });
-
-  await client.connect();
-
-  let foundCount = 0;
-
+  await client2.connect();
   try {
-    const lock = await client.getMailboxLock("INBOX");
-
-    try {
-      // Search for messages from each lead in batches of 10
-      // IMAP OR is binary — build a search tree
-      const emailAddresses = leads.map((l) => l.email_address.toLowerCase());
-      const emailToLead = new Map(leads.map((l) => [l.email_address.toLowerCase(), l]));
-
-      // Build OR search for all lead addresses — IMAP supports nested OR
-      // ImapFlow search: { or: [{ from: "a" }, { from: "b" }] }
-      // For large lists, batch into groups of 20 to avoid oversized queries
-      const BATCH = 20;
-      const matchedUids = new Set<number>();
-
-      for (let i = 0; i < emailAddresses.length; i += BATCH) {
-        const batch = emailAddresses.slice(i, i + BATCH);
-
-        let query: object;
-        if (batch.length === 1) {
-          query = { from: batch[0] };
-        } else {
-          // Fold into nested OR: { or: [{ from: a }, { or: [{ from: b }, ...] }] }
-          query = batch.reduceRight<object>(
-            (acc, addr, idx) => idx === batch.length - 1 ? { from: addr } : { or: [{ from: addr }, acc] },
-            { from: batch[batch.length - 1] }
-          );
-        }
-
-        const uids = await client.search(query, { uid: true });
-        for (const uid of uids) matchedUids.add(uid as number);
-      }
-
-      if (matchedUids.size === 0) {
-        console.log("No replies found.");
-        return;
-      }
-
-      console.log(`Found ${matchedUids.size} potential repl${matchedUids.size === 1 ? "y" : "ies"} — fetching details...`);
-
-      // Fetch envelope + body for matched UIDs
-      const uidList = Array.from(matchedUids).join(",");
-
-      for await (const msg of client.fetch(uidList, { envelope: true, uid: true }, { uid: true })) {
-        const fromAddr = msg.envelope?.from?.[0]?.address?.toLowerCase();
-        if (!fromAddr) continue;
-
-        const lead = emailToLead.get(fromAddr);
-        if (!lead) continue;
-
-        const subject = msg.envelope?.subject ?? "";
-
-        // Skip bounces and auto-replies
-        if (isAutoReply(fromAddr, subject)) {
-          console.log(`  SKIP (auto-reply): ${fromAddr} — "${subject}"`);
-          continue;
-        }
-
-        const intent = classifyReply(subject, "");
-        const snippet = `${subject}`.trim().slice(0, 200);
-        const now = new Date().toISOString();
-
-        const newCallStatus =
-          intent === "unsubscribe" ? "dnc" :
-          intent === "not_interested" ? "not_interested" :
-          lead.call_status;
-
-        console.log(`REPLY [${intent.toUpperCase()}]: ${lead.business_name} <${fromAddr}> — "${subject}"`);
-
-        if (!DRY_RUN) {
-          db.prepare(
-            `UPDATE leads SET replied_at = ?, reply_snippet = ?, call_status = ?, updated_at = ? WHERE id = ?`
-          ).run(now, snippet, newCallStatus, now, lead.id);
-        }
-
-        foundCount++;
-      }
-    } finally {
-      lock.release();
+    const bouncedCount = await checkBounces(client2, db, DRY_RUN);
+    if (bouncedCount === 0) {
+      console.log("No new bounces found.");
+    } else {
+      console.log(`${bouncedCount} address${bouncedCount === 1 ? "" : "es"} marked bounced.${DRY_RUN ? " (dry-run)" : ""}`);
     }
   } finally {
-    await client.logout();
+    await client2.logout();
     db.close();
-  }
-
-  if (foundCount === 0) {
-    console.log("No new replies found.");
-  } else {
-    console.log(`\n${foundCount} repl${foundCount === 1 ? "y" : "ies"} processed.${DRY_RUN ? " (dry-run — no writes)" : ""}`);
   }
 }
 

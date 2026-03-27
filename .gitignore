@@ -4,5 +4,12 @@ node_modules/
 outreach.db
 outreach.db-shm
 outreach.db-wal
+leads.db
+lib/db/leads.db
 sessions/
 *.session.json
+*.log
+tsconfig.tsbuildinfo
+.swarm/
+.claude/memory.db
+.claude/settings.json
