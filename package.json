@@ -20,7 +20,9 @@
     "brief": "npx tsx --env-file=.env.local scripts/send-brief.ts",
     "check-replies": "npx tsx --env-file=.env.local scripts/check-replies.ts",
     "log-deal": "npx tsx --env-file=.env.local scripts/log-deal.ts",
-    "draft-content": "npx tsx --env-file=.env.local scripts/draft-content.ts"
+    "draft-content": "npx tsx --env-file=.env.local scripts/draft-content.ts",
+    "publish-post": "npx tsx --env-file=.env.local scripts/publish-post.ts",
+    "post-linkedin": "npx tsx --env-file=.env.local scripts/post-linkedin.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
