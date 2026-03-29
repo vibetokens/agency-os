@@ -1,86 +1,117 @@
 import type { Lead } from "../../lib/db/schema";
 import type { SequenceEmail } from "./types";
-import { buildICPSequence } from "./build";
 
 const LP = "https://vibetokens.io/local-service";
 
-const PITCH_RULES = `
+const RULES = `
 Rules:
-- Subject line first on its own line: Subject: <subject> — personal, not marketing
+- Subject line first on its own line: Subject: <subject>
+- Subject line: Title Case. Never all lowercase. Personal, not marketing copy.
 - 4 sentences max. Every word earns its place.
 - No AI disclosure. No agency speak. No buzzwords.
 - One CTA — a single link to ${LP} with natural anchor text.
-- Paragraphs as <p style="margin:0 0 16px 0;"> tags. No <br> tags. No bullet lists.
-- Links: <a href="${LP}" style="color:#7c3aed;text-decoration:none;">anchor text</a>
-- Tone: direct, peer-to-peer. One operator talking to another. Zero fluff.
+- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags.
+- Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a> — bold underline, no color
+- Formatting: use <strong> to bold key phrases (1-2 per email). Use <em> for italics on a single sharp idea. Use <u> once max, only for the most important line.
+- Write like Bilyeau — short punchy sentences. One idea per line. Whitespace is emphasis.
 - Sign off inside the final <p>: — Jason
 `;
 
-const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
+export const localServiceSequence: SequenceEmail[] = [
 
-  // Day 3 — The lead platform problem
+  // Day 1 — The lead platform problem
   {
-    day: 3,
-    theme: "ICP pitch 1 — stop paying for leads you don't own",
+    day: 1,
+    theme: "Lead platforms are selling your lead to three competitors",
     buildPrompt: (lead: Lead) => {
       const rating = lead.rating ? `${lead.rating} stars` : "strong reviews";
-      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "reviews";
+      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "good reviews";
       return `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city} (${rating}, ${reviews}).
+Write a cold email to the owner of ${lead.businessName} in ${lead.city} (${rating}, ${reviews}).
 
-The pitch: they've built a real business with real reviews — but they're probably paying
-Angi or HomeAdvisor $40-100 per lead and racing three competitors to the phone every time.
-The businesses that stopped paying for leads built location pages that rank on Google.
-We build that for local service companies — and Ilya's Tree Service in Cleveland is proof it works.
+The pitch: Angi and HomeAdvisor sell the same lead to 3 companies. You pay $50-100, race to the phone,
+and cut your margin to win. The businesses that stopped doing that built location pages on Google —
+one page for "tree removal in [neighborhood]" earns those calls for free, permanently.
+That's what we build for local service companies.
 
-Reference their reviews briefly (they've earned them), then make the point direct.
-This is a trades/service owner — no fluff, no agency speak, just the business problem.
+Get to the point in sentence one. Reference their reviews (they've earned them) but don't dwell.
+This owner is probably on a job site reading their phone between calls.
 
-${PITCH_RULES}`;
+${RULES}`;
     },
   },
 
-  // Day 4 — The invisible website
+  // Day 2 — The invisible website
   {
-    day: 4,
-    theme: "ICP pitch 2 — the website ranks for nothing",
+    day: 2,
+    theme: "Your website ranks for your name and nothing else",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
+
+The pitch: most local service websites rank for exactly one thing — the business name.
+That means they're invisible to anyone who hasn't already heard of them.
+The homeowner in ${lead.city} who types "tree removal near me" has no idea ${lead.businessName} exists.
+We build 100 location and service pages so you show up for those searches.
+
+Short, direct, no fluff. This owner doesn't need a lecture — they need one clear idea.
+
+${RULES}`,
+  },
+
+  // Day 3 — What we actually build
+  {
+    day: 3,
+    theme: "What the engagement actually looks like",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
 Write a direct pitch email to ${lead.businessName} in ${lead.city}.
 
-The pitch: most local service websites rank for exactly one thing — the business name.
-That means they're invisible to the homeowner in ${lead.city} who types "tree removal near me"
-or "emergency HVAC [city]" and has no idea ${lead.businessName} exists.
-We build the location and service pages that show up for those searches — 100 pages, built fast.
+The pitch: be specific — we build one page for every combination of their services and service areas.
+Tree removal in Lakewood. Stump grinding in Rocky River. Emergency service in Westlake.
+100 pages in a few days, each one targeting exactly what homeowners in that town are searching.
+Monthly additions, instant deploys, one flat rate.
 
-Keep it short and punchy. This owner is on a job site reading their phone.
+This is the specificity email — make it concrete and real.
 
-${PITCH_RULES}`,
+${RULES}`,
+  },
+
+  // Day 4 — Proof point
+  {
+    day: 4,
+    theme: "Ilya's Tree Service proof point",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a short proof email to ${lead.businessName} in ${lead.city}.
+
+The pitch: name-drop Ilya's Tree Service in Cleveland as a real example —
+we built 100+ location and service pages across 16 Cleveland neighborhoods.
+Now it ranks for tree removal, stump grinding, and emergency service in every one of them.
+That's what we do for service companies. Same thing for ${lead.businessName} in ${lead.city}.
+
+Keep it short — one real example is worth more than a paragraph of claims.
+
+${RULES}`,
   },
 
   // Day 5 — The close
   {
     day: 5,
-    theme: "ICP pitch 3 — what we actually build, the close",
+    theme: "Three minutes to find out if it makes sense",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct closing pitch to ${lead.businessName} in ${lead.city}.
+Write a short closing email to ${lead.businessName} in ${lead.city}.
 
-The pitch: be specific about what the engagement actually delivers —
-100 location + service pages (one for every neighborhood they serve × every service they offer),
-technical SEO foundation built in from day one, monthly content additions without them touching anything,
-and fixes deployed in minutes not days.
-One monthly rate. No WordPress admin. No project creep.
+The pitch: they've heard the idea — stop paying per lead, build pages that rank and earn calls permanently.
+Takes 3 minutes to tell us what they do and where they work.
+We come back with a real plan, not a proposal.
+If it's not a fit, they'll know that too.
 
-The frame: they can keep running Angi, or they can spend 3 minutes telling us what they do
-and get a site that earns leads without a subscription.
+Low-pressure close. Make it feel easy to take the next step.
 
-Make this feel earned — they've heard the logic, now give them the offer.
-
-${PITCH_RULES}`,
+${RULES}`,
   },
 
 ];
-
-export const localServiceSequence = buildICPSequence(spike);

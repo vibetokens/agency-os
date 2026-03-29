@@ -14,15 +14,16 @@ import type { SequenceEmail } from "./types";
 const ELEVATED_RULES = `
 Rules:
 - Subject line first on its own line: Subject: <subject>
-- Subject must sound like something a person would send, not marketing copy
+- Subject line: Title Case. Never all lowercase. Must sound like something a real person sends.
 - 4-5 sentences. Every word earns its place.
 - No AI disclosure. No agency speak. No buzzwords. No emoji.
-- No CTA in elevated emails — this is relationship, not pitch
-- Paragraphs as <p style="margin:0 0 16px 0;"> tags. No <br> tags. No bullet lists.
-- Voice: Dan Koe elevation (systems > hustle, architecture framing) + Tim Denning honesty
-  (raw, direct, "here's what most people won't say") + Tom Bilyeau intensity
-  ("you're capable of more than your current environment is asking for")
-- First person, documented experience — this is a journal, not a lecture
+- No CTA in elevated emails — this is relationship, not pitch.
+- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No bullet lists.
+- Links (day 14 only): <a href="URL" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
+- Formatting: use <strong> to bold 1-2 key phrases per email. Use <em> for a single sharp insight. Use <u> once max for the most important line.
+- Voice: Dan Koe elevation + Tim Denning raw honesty + Tom Bilyeau intensity.
+- Write like Bilyeau — short punchy sentences. One idea per sentence. Whitespace is emphasis.
+- First person, documented experience — journal, not lecture.
 - Sign off inside the final <p>: — Jason
 `;
 

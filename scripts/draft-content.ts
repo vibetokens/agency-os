@@ -193,10 +193,13 @@ Theme: ${ep.theme}
 Rules:
 - 200–350 words
 - Architecture-first (lead with the structural insight, not the complaint)
-- Weave in Gloria Mark / UC Irvine 23-minute attention residue stat naturally
+- Weave in Gloria Mark / UC Irvine 23-minute attention residue stat naturally — cite it specifically, don't just gesture at it
 - Personal voice, no buzzwords, no "I'm thrilled to share"
 - End with a question or invitation that drives to: ${LAYER_LP}
-- No pricing, no agency pitch
+- ZERO ICP language — no mention of specific niches, industries, client types, or business categories
+- Audience is developers, builders, Claude Code users — talk about what's technically possible and what you're building
+- Nerd references are welcome and encouraged (research citations, technical specifics, architecture concepts)
+- Write like a builder documenting their process publicly, not a consultant pitching services
 
 Write the LinkedIn post only. No explanatory text.`;
 

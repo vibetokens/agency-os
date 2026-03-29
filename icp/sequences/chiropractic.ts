@@ -6,12 +6,13 @@ const LP = "https://vibetokens.io/chiropractic";
 
 const PITCH_RULES = `
 Rules:
-- Subject line first on its own line: Subject: <subject> — personal, not marketing
+- Subject line first on its own line: Subject: <subject>
+- Subject line: Title Case. Never all lowercase. Personal, not marketing copy.
 - 4 sentences max. Every word earns its place.
 - No AI disclosure. No agency speak. No buzzwords.
 - One CTA — a single link to ${LP} with natural anchor text.
-- Paragraphs as <p style="margin:0 0 16px 0;"> tags. No <br> tags. No bullet lists.
-- Links: <a href="${LP}" style="color:#7c3aed;text-decoration:none;">anchor text</a>
+- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No <br> tags. No bullet lists.
+- Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
 - Tone: direct, peer-to-peer. Chiro owners are hands-on — respect the craft, talk business.
 - Sign off inside the final <p>: — Jason
 `;

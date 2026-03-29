@@ -82,6 +82,7 @@ export const PIPELINE: IcpConfig[] = [
     active: true,
   },
 
+  // ── Vibe Tokens Local Division ───────────────────────────────────────────────
   {
     niche: "tree service",
     slug: "local-service",
@@ -96,10 +97,15 @@ export const PIPELINE: IcpConfig[] = [
       "Nashville Tennessee",
       "Charlotte North Carolina",
       "Atlanta Georgia",
+      "Kansas City Missouri",
+      "St. Louis Missouri",
+      "Milwaukee Wisconsin",
+      "Minneapolis Minnesota",
+      "Baltimore Maryland",
     ],
     landingPage: "https://vibetokens.io/local-service",
     dailyTarget: 30,
-    active: false, // activate after reviewing Day 1 test email
+    active: false, // activate after Day 1 test email approved
   },
 
   {

@@ -24,6 +24,11 @@ const ICP_REGISTRY = [
     landing: "https://vibetokens.io/services/claude-consulting",
   },
   {
+    niches: ["small business", "solopreneur", "freelancer", "operator", "ai systems", "ai consulting", "claude consulting"],
+    sequence: claudeConsultingSequence,
+    landing: "https://vibetokens.io/consulting",
+  },
+  {
     niches: ["dental", "dentist", "orthodontist", "oral surgeon", "endodontist", "periodontist", "dental practice", "dental office"],
     sequence: dentalSequence,
     landing: "https://vibetokens.io/dental",
@@ -41,7 +46,7 @@ const ICP_REGISTRY = [
   {
     niches: ["tree service", "tree removal", "landscaping", "lawn care", "hvac", "roofing", "plumbing", "gutter", "cleaning service", "house cleaning", "concrete", "pressure washing", "pest control", "electrical", "handyman", "painting", "flooring"],
     sequence: localServiceSequence,
-    landing: "https://vibetokens.io/local-service",
+    landing: "https://vibetokens.io/local",
   },
 ];
 
