@@ -19,12 +19,7 @@ const ICP_REGISTRY = [
     landing: "https://vibetokens.io/med-spa",
   },
   {
-    niches: ["consulting", "consultant", "business coach", "life coach", "coach", "advisor"],
-    sequence: claudeConsultingSequence,
-    landing: "https://vibetokens.io/services/claude-consulting",
-  },
-  {
-    niches: ["small business", "solopreneur", "freelancer", "operator", "ai systems", "ai consulting", "claude consulting"],
+    niches: ["consulting", "consultant", "business coach", "life coach", "coach", "advisor", "small business", "solopreneur", "freelancer", "operator", "ai systems", "ai consulting", "claude consulting"],
     sequence: claudeConsultingSequence,
     landing: "https://vibetokens.io/consulting",
   },
