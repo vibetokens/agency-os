@@ -105,7 +105,7 @@ export const PIPELINE: IcpConfig[] = [
     ],
     landingPage: "https://vibetokens.io/local-service",
     dailyTarget: 30,
-    active: false, // activate after Day 1 test email approved
+    active: true,
   },
 
   {
