@@ -282,7 +282,7 @@ Murph's intake takes 3 minutes. If it's a fit, they'll hear back with a real pla
 
 Tone: warm, earned, not desperate. They've been in the conversation this long for a reason.
 
-Link format: <a href="https://vibetokens.io" style="color:#7c3aed;text-decoration:none;">anchor text</a>
+Link format: <a href="https://vibetokens.io" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
 
 ${ELEVATED_RULES}`,
   },

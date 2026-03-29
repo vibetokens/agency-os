@@ -41,7 +41,7 @@ const ICP_REGISTRY = [
   {
     niches: ["tree service", "tree removal", "landscaping", "lawn care", "hvac", "roofing", "plumbing", "gutter", "cleaning service", "house cleaning", "concrete", "pressure washing", "pest control", "electrical", "handyman", "painting", "flooring"],
     sequence: localServiceSequence,
-    landing: "https://vibetokens.io/local",
+    landing: "https://vibetokens.io/local-service",
   },
 ];
 
