@@ -83,6 +83,26 @@ export const PIPELINE: IcpConfig[] = [
   },
 
   {
+    niche: "tree service",
+    slug: "local-service",
+    cities: [
+      "Cleveland Ohio",
+      "Columbus Ohio",
+      "Cincinnati Ohio",
+      "Pittsburgh Pennsylvania",
+      "Detroit Michigan",
+      "Indianapolis Indiana",
+      "Louisville Kentucky",
+      "Nashville Tennessee",
+      "Charlotte North Carolina",
+      "Atlanta Georgia",
+    ],
+    landingPage: "https://vibetokens.io/local-service",
+    dailyTarget: 30,
+    active: false, // activate after reviewing Day 1 test email
+  },
+
+  {
     niche: "marketing agency",
     slug: "agency",
     cities: [

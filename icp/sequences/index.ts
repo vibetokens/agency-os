@@ -5,6 +5,7 @@ import { claudeConsultingSequence } from "./claude-consulting";
 import { dentalSequence } from "./dental";
 import { chiropracticSequence } from "./chiropractic";
 import { agencySequence } from "./agency";
+import { localServiceSequence } from "./local-service";
 import { genericSequence } from "./generic";
 
 // ── ICP registry ──────────────────────────────────────────────────────────────
@@ -36,6 +37,11 @@ const ICP_REGISTRY = [
     niches: ["agency", "digital agency", "marketing agency", "creative agency", "boutique agency", "ad agency", "media agency", "web agency", "seo agency", "social media agency"],
     sequence: agencySequence,
     landing: "https://vibetokens.io/agency",
+  },
+  {
+    niches: ["tree service", "tree removal", "landscaping", "lawn care", "hvac", "roofing", "plumbing", "gutter", "cleaning service", "house cleaning", "concrete", "pressure washing", "pest control", "electrical", "handyman", "painting", "flooring"],
+    sequence: localServiceSequence,
+    landing: "https://vibetokens.io/local-service",
   },
 ];
 
