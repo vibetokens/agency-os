@@ -36,6 +36,11 @@ Frame it as an observation, not a warning. This owner has probably thought about
 They just haven't been shown where it actually moves the needle for a business like theirs.
 That's the offer: a concrete Claude implementation plan built around their operation.
 
+If they're not ready for a full consulting engagement, mention that we also run live
+workshops — starting at $97 — where they can build the first layer themselves with
+guidance. One sentence. Link: https://vibetokens.io/workshops formatted as:
+<a href='https://vibetokens.io/workshops' style='color:#1a1a1a;font-weight:700;text-decoration:underline;'>workshops</a>
+
 ${PITCH_RULES}`,
   },
 

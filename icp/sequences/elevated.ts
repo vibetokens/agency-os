@@ -166,6 +166,12 @@ Content that wins in this era isn't polished expertise. It's documented experien
 
 No pitch. This is a concept worth sitting with.
 
+End with one soft sentence: if they want to build these systems in real time rather than
+figuring it out alone, mention that Vibe Tokens runs live workshops — link to
+https://vibetokens.io/workshops. Soft, one sentence, feels earned by the professor model
+context (the workshop is the office hours version of everything described above). Format
+link as: <a href='https://vibetokens.io/workshops' style='color:#1a1a1a;font-weight:700;text-decoration:underline;'>anchor text</a>
+
 ${ELEVATED_RULES}`,
   },
 
