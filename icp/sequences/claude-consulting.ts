@@ -2,7 +2,8 @@ import type { Lead } from "../../lib/db/schema";
 import type { SequenceEmail } from "./types";
 import { buildICPSequence } from "./build";
 
-const LP = "https://vibetokens.io/claude-consulting";
+const LP = "https://vibetokens.io/consulting";
+const LP_GUIDE = "https://vibetokens.io/80-to-claude";
 
 const PITCH_RULES = `
 Rules:
@@ -56,22 +57,38 @@ an actual working implementation. Claude handling the workflow that's eating the
 ${PITCH_RULES}`,
   },
 
-  // Day 5 — What it actually looks like
+  // Day 5 — Two doors: full engagement or self-serve guide
   {
     day: 5,
-    theme: "ICP pitch 3 — concrete offer, close",
+    theme: "ICP pitch 3 — concrete offer, two entry points, close",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
 Write a closing pitch to ${lead.businessName} in ${lead.city}.
 
-The pitch: be concrete. A Claude consulting engagement means we map where they're the
-bottleneck, identify the 2-3 highest-leverage workflows to automate, build and deploy
-the implementation, and hand them a system that runs without them in it.
+The pitch: give them two ways in.
 
-Not a monthly retainer for advice. Actual infrastructure. Real output.
-If this is the right time, 3 minutes in the intake tells us everything we need to start.
+Door 1 — Full consulting engagement: we map where they're the bottleneck, identify
+the 2-3 highest-leverage workflows to automate, build and deploy the implementation,
+hand them a system that runs without them in it. Not advice. Actual infrastructure.
 
-${PITCH_RULES}`,
+Door 2 — Self-serve: the 80 to Claude Guide is $79 and covers the exact system for
+handing 80% of your daily business work to Claude in a weekend. No call, instant access.
+Link: ${LP_GUIDE}
+
+If they're ready to build the full system, 3 minutes at the consulting page starts that:
+Link: ${LP}
+
+Tone: give them credit for being able to decide which one is right for them. Not pushy.
+One of these fits — they'll know which.
+
+Rules:
+- Subject line first on its own line: Subject: <subject>
+- Subject line: Title Case. Never all lowercase.
+- 4-5 sentences max. Both doors mentioned naturally, not as a list.
+- No AI disclosure. No agency speak. No buzzwords.
+- Two links, formatted as: <a href="URL" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
+- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags.
+- Sign off inside the final <p>: — Jason`,
   },
 
 ];

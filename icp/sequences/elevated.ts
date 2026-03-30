@@ -171,24 +171,31 @@ ${ELEVATED_RULES}`,
 
   {
     day: 10,
-    theme: "The gap — what AI-native actually means",
+    theme: "The capacity close — 2 slots, direct honest ask",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, entrepreneur and founder of Vibe Tokens.
 
 Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
-Topic: The gap between what AI-native operators can do and what everyone else is doing
-is not closing. It's growing. Every month someone spends in the old way, someone else
-is already live, ranking, following up automatically, publishing daily.
+Topic: Break from the elevated thinking series. Make a direct, honest ask.
 
-This isn't about replacing humans. It's about removing yourself from the work that was
-never worth your attention in the first place.
+You've been showing up in their inbox for 9 days. You're not going to oversell this.
+The honest version: you take on a small number of clients on purpose — every engagement
+is hands-on, and right now you have capacity for 2 more this month.
 
-The businesses that figure this out in 2026 are going to look back at the competition
-the way Amazon looked at Borders. The ones that don't are going to wonder why the
-work keeps taking the same amount of time.
+If any of the last few weeks have landed — the attention residue, the calendar architecture,
+the AI-native gap — the door is open. Three minutes at vibetokens.io tells you if there's a fit.
+No hard pitch. No proposal. A real conversation about what's worth building.
 
-No pitch. Frame it from your own observations, not a lecture.
+The tone is: "I've been showing up. Here's the actual ask. If the timing is wrong, no harm done."
 
+NOT salesy. Earned, not desperate. The ask is soft but clear.
+
+One link: https://vibetokens.io
+
+OVERRIDE: This email gets ONE link to https://vibetokens.io — use this format:
+<a href="https://vibetokens.io" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">vibetokens.io</a>
+
+Other rules still apply from ELEVATED_RULES EXCEPT the no-CTA rule — this email IS the CTA.
 ${ELEVATED_RULES}`,
   },
 
