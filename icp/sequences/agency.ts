@@ -1,83 +1,103 @@
+/**
+ * agency.ts — 5-email plain text sequence
+ * v3 2026-03-31: specific outcome proof in Day 1, tighter subject guidance.
+ * No positive declarative subjects. Peer-level tone throughout.
+ */
+
 import type { Lead } from "../../lib/db/schema";
 import type { SequenceEmail } from "./types";
-import { buildICPSequence } from "./build";
 
 const LP = "https://vibetokens.io/agency";
 
-const PITCH_RULES = `
+const RULES = `
 Rules:
-- Subject line first on its own line: Subject: <subject>
-- Subject line: Title Case. Never all lowercase. Personal, not marketing copy.
-- 4 sentences max. Every word earns its place.
-- No AI disclosure. No agency speak. No buzzwords.
-- One CTA — a single link to ${LP} with natural anchor text.
-- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No <br> tags. No bullet lists.
-- Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
-- Tone: one agency operator to another. Direct. Slightly dry. Respects their intelligence.
-- Sign off inside the final <p>: — Jason
+- Subject line first, on its own line: Subject: <subject>
+- Subject line: 2-5 words. Title Case. Must name a problem or create curiosity — never declare good news.
+  Good formats: "[City] Agency Question" / "The [Name] Ceiling" / "Question About Deliverables"
+  Never: statements that sound positive, anything that reads like a newsletter headline.
+- Body: 75-100 words total. Every sentence earns its place.
+- Plain text only — no HTML tags, no markdown asterisks or underscores, no bullet points.
+- Paragraphs separated by a single blank line.
+- No AI disclosure. No agency jargon ("omnichannel", "synergy", "AI-powered leverage").
+- Include ONE specific outcome or proof point — no vague claims.
+- CTA is specified per email — follow it exactly.
+- Tone: peer-level. You have run an agency. You solved this problem. You are not selling to them.
+- Sign off on its own line: — Jason
 `;
 
-const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
+export const agencySequence: SequenceEmail[] = [
 
-  // Day 3 — The owner-as-bottleneck problem
+  {
+    day: 1,
+    theme: "Owner as ceiling — specific proof, reply CTA",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
+
+Structure:
+1. Open with ONE sentence that explains how you found them — e.g. "Came across ${lead.businessName} while looking at agencies in ${lead.city}." Keep it simple and specific. Do not over-explain.
+2. Then the core pitch: boutique agency owners become the ceiling — everything requiring judgment routes through them before it ships. It feels like quality control. It is actually a capacity cap. Agencies that built an AI operating layer removed the owner from the 80% that does not need their judgment specifically. One agency I work with went from the owner reviewing 40+ deliverables a week to under 10. Same output. Same standards. The owner is just no longer the connector between every step.
+3. End with a reply-inviting question followed by "Just hit reply." on its own line. Example: "Is that the actual bottleneck at ${lead.businessName}? Just hit reply."
+
+No link. Reply only. Make the action completely obvious and frictionless.
+
+${RULES}`,
+  },
+
+  {
+    day: 2,
+    theme: "Tool users vs infrastructure builders — the gap is widening",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
+
+The pitch: there are agencies using AI as a tool — ChatGPT for a draft, Canva AI for an image, saving 20 minutes here and there. And there are agencies where AI is the operating system — proposals, briefs, client reports all flow through it before touching the owner queue. The second kind runs at 2-3x deliverable rate with the same headcount. Their clients notice. That gap is widening and it compounds each quarter.
+
+CTA: reply question — "Which side of that gap is ${lead.businessName} on right now?" No link.
+
+${RULES}`,
+  },
+
   {
     day: 3,
-    theme: "ICP pitch 1 — the owner is the ceiling",
+    theme: "What the layer looks like — concrete, link CTA",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city}.
+Write a pitch email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: in most agencies, the owner is the bottleneck. Every deliverable that requires
-judgment, every client question that needs a real answer, every proposal that needs a brain
-behind it — it routes through them. That's a ceiling, not a business.
+Be specific: proposals, research briefs, client reports, copy drafts, and follow-up sequences — all routed through a Claude-based system before they reach the owner queue. Owner reviews final outputs only. Built in weeks, running permanently. Not a strategy document — actual infrastructure. Deliverable rate goes up. Owner review time goes down.
 
-AI doesn't replace the judgment. It removes them from every layer that doesn't require it.
-The output stays the same. The owner gets their hours back.
+CTA: include the URL naturally in the last sentence — "See what it looks like in practice: ${LP}"
 
-We build the AI operating layer for boutique agencies — the infrastructure that lets
-the work ship without everything running through one person.
-
-${PITCH_RULES}`,
+${RULES}`,
   },
 
-  // Day 4 — What clients are about to ask
   {
     day: 4,
-    theme: "ICP pitch 2 — your clients are about to ask what your AI strategy is",
+    theme: "Objection — we already use AI tools",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city}.
+Write a short email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: their clients are about to start asking what the AI strategy is.
-Agencies that can answer that question confidently — and show the work — are going to
-differentiate. Agencies that can't are going to look like they're catching up.
+The pitch: every agency says they already use AI. Using tools still means a human prompts, reviews, and routes every piece. Infrastructure means the routing is built in — work moves from intake to delivery without the owner connecting the steps. Saving 20 minutes and running at 2x capacity are not the same outcome.
 
-We help agencies in ${lead.city} build that answer from the inside: an AI workflow
-that runs their operation, plus the positioning to make it a competitive advantage
-instead of a question they're dreading.
+CTA: ${LP} as a plain URL on the last line.
 
-${PITCH_RULES}`,
+${RULES}`,
   },
 
-  // Day 5 — The close
   {
     day: 5,
-    theme: "ICP pitch 3 — what we build, the close",
+    theme: "Last email — 2-3 sentences, clean close",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a closing pitch to ${lead.businessName} in ${lead.city}.
+Write the final email in a cold sequence to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: be concrete. An AI architecture audit to find where the bottlenecks are.
-A workflow layer built on Claude that removes the owner from repetitive output.
-Client-facing AI positioning they can actually use. All of it built and deployed —
-not a strategy deck, not a monthly call, actual infrastructure.
+2-3 sentences only. Last email. If the owner-bottleneck problem is real for them, three minutes at ${LP} is the whole ask. No follow-up after this.
 
-If any of this maps to where ${lead.businessName} is right now, 3 minutes in the
-intake gets the conversation started.
+CTA: ${LP} as a plain URL on its own line.
 
-${PITCH_RULES}`,
+${RULES}`,
   },
 
 ];
-
-export const agencySequence = buildICPSequence(spike);

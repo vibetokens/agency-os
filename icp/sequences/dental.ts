@@ -1,84 +1,107 @@
+/**
+ * dental.ts — 5-email plain text sequence
+ * v3 2026-03-31: AI search angle baked into Day 1. Plain text. No buildICPSequence.
+ * "Found you on Google" opener. Single reply CTA days 1-2, link days 3-5.
+ */
+
 import type { Lead } from "../../lib/db/schema";
 import type { SequenceEmail } from "./types";
-import { buildICPSequence } from "./build";
 
 const LP = "https://vibetokens.io/dental";
 
-const PITCH_RULES = `
+const RULES = `
 Rules:
-- Subject line first on its own line: Subject: <subject>
-- Subject line: Title Case. Never all lowercase. Personal, not marketing copy.
-- 4 sentences max. Every word earns its place.
-- No AI disclosure. No agency speak. No buzzwords.
-- One CTA — a single link to ${LP} with natural anchor text.
-- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No <br> tags. No bullet lists.
-- Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
+- Subject line first, on its own line: Subject: <subject>
+- Subject line: 2-5 words. Title Case. Must name a problem or create curiosity — never declare good news.
+  Good: "[N] Reviews, Zero AI Presence" / "New Patients Are Searching Wrong" / "Invisalign [City] Question" / "They Are Choosing Someone Else"
+  Never: anything that sounds reassuring or like a compliment. Subject must pull with a problem.
+- Body: 75-100 words total. Every sentence earns its place.
+- Plain text only — no HTML tags, no markdown, no bullet points.
+- Paragraphs separated by a single blank line.
+- Do NOT open by complimenting their practice — lead with the problem.
+- One specific outcome or proof point per email.
+- CTA is specified per email — follow it exactly.
 - Tone: data-first, peer-to-peer. Dentists are analytical — lead with specifics.
-- Sign off inside the final <p>: — Jason
+- Sign off on its own line: — Jason
 `;
 
-const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
+export const dentalSequence: SequenceEmail[] = [
 
-  // Day 3 — The site / visibility problem
   {
-    day: 3,
-    theme: "ICP pitch 1 — most dental sites rank for the practice name, not the procedure",
+    day: 1,
+    theme: "Not showing up in AI search — reviews don't fix this",
     buildPrompt: (lead: Lead) => {
-      const rating = lead.rating ? `${lead.rating} stars` : "strong reviews";
-      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "reviews";
+      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "strong reviews";
+      const rating = lead.rating ? `${lead.rating}-star` : "";
       return `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city} (${rating}, ${reviews}).
+Write a cold email to the owner of ${lead.businessName} in ${lead.city} (${rating} ${reviews}).
 
-The pitch: most dental practices rank well for their own name. The problem is nobody
-searches for "Clearwater Dental Group" — they search for "dentist accepting new patients
-near me" or "Invisalign ${lead.city}." That's the visibility gap.
+Structure:
+1. Open with ONE sentence explaining how you found them — e.g. "Found ${lead.businessName} on Google while looking at dental practices in ${lead.city}."
+2. Core pitch: patients are now asking ChatGPT and Claude things like "best dentist for Invisalign in ${lead.city}" or "who does dental implants near me." The AI gives 3-5 names. Most practices are not in that answer — and unlike Google Ads, you cannot buy your way in. The practices that appear have content-rich sites built around procedures and neighborhoods, written the way AI reads them. Most dental sites rank for the practice name and nothing else. Invite them to test it: go ask ChatGPT "best dentist in ${lead.city}" and see if they appear.
+3. End with EXACTLY ONE reply question (one sentence, one question mark) followed by "Just hit reply." on its own line. Make the action completely obvious.
 
-We build AI-native sites for dental practices that rank for the procedures and the area,
-not just the brand. Fast load, clean structure, Google-ready from day one.
+No link. Reply only.
 
-${PITCH_RULES}`;
+${RULES}`;
     },
   },
 
-  // Day 4 — Content and new patient acquisition
   {
-    day: 4,
-    theme: "ICP pitch 2 — new patient content without adding to the admin burden",
+    day: 2,
+    theme: "What ranking for procedures actually means",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city}.
+Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: the practices pulling ahead on new patient acquisition are publishing consistently —
-procedure explainers, local SEO content, FAQ pages that answer what Google is actually being
-asked. Most dental teams can't add that to the admin burden.
+The pitch: a page for "Invisalign ${lead.city}" — written specifically for what that patient searches — ranks differently than a generic services page. Same for "dental implants near [neighborhood]" and "emergency dentist ${lead.city}." Practices with 30-40 of these pages see a shift in how new patients find them. The appointments come from people already searching for the procedure, not from people who happened to see an ad.
 
-We build the content engine so it runs without the practice touching it.
-Daily output, brand-aligned, optimized for the searches that bring in new patients —
-not just people who already know the practice name.
+CTA: reply question — "Is that the kind of new patient flow you are trying to build?" No link.
 
-${PITCH_RULES}`,
+${RULES}`,
   },
 
-  // Day 5 — The close
   {
-    day: 5,
-    theme: "ICP pitch 3 — what we build, the close",
+    day: 3,
+    theme: "What we build — fast site, procedure grid, content engine",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a closing pitch to ${lead.businessName} in ${lead.city}.
+Write a pitch email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: be concrete. AI-native website built for procedure-level and local SEO.
-Content engine producing consistent output without adding staff time.
-Automated new patient follow-up so no lead goes cold after first contact.
-All of it live in 14 days.
+Be specific: an AI-native site loading under 2 seconds — most WordPress dental sites fail Google Core Web Vitals. A page for every procedure and every neighborhood in ${lead.city}. Automated content — blog posts, FAQs, Google Business updates — published weekly without effort from the practice. 14-day build.
 
-If the current setup is doing its job, keep it. If any of this matches what's
-been sitting on the back burner, 3 minutes in the intake starts the conversation.
+CTA: "See the full build: ${LP}" — include the URL naturally.
 
-${PITCH_RULES}`,
+${RULES}`,
+  },
+
+  {
+    day: 4,
+    theme: "Objection — we already have an SEO agency",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a short email to the owner of ${lead.businessName} in ${lead.city}.
+
+The pitch: most dental practices already pay $1,500-3,000/month for SEO. The test: how many searches does ${lead.businessName} rank for beyond its own name? If the answer is unclear — that is the answer. Ranking for a practice name is not SEO. It is just being findable by patients who already know you exist. New patients do not know you exist.
+
+CTA: ${LP} as a plain URL on the last line.
+
+${RULES}`,
+  },
+
+  {
+    day: 5,
+    theme: "Last email — clean close",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write the final email in a cold sequence to the owner of ${lead.businessName} in ${lead.city}.
+
+2-3 sentences only. Last one. If the new patient discovery gap is real for them, three minutes at ${LP} is the whole ask. No follow-up after this.
+
+CTA: ${LP} as a plain URL on its own line.
+
+${RULES}`,
   },
 
 ];
-
-export const dentalSequence = buildICPSequence(spike);

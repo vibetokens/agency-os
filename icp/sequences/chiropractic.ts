@@ -1,85 +1,107 @@
+/**
+ * chiropractic.ts — 5-email plain text sequence
+ * v3 2026-03-31: AI search angle baked into Day 1. Plain text. No buildICPSequence.
+ * "Found you on Google" opener. Single reply CTA days 1-2, link days 3-5.
+ */
+
 import type { Lead } from "../../lib/db/schema";
 import type { SequenceEmail } from "./types";
-import { buildICPSequence } from "./build";
 
 const LP = "https://vibetokens.io/chiropractic";
 
-const PITCH_RULES = `
+const RULES = `
 Rules:
-- Subject line first on its own line: Subject: <subject>
-- Subject line: Title Case. Never all lowercase. Personal, not marketing copy.
-- 4 sentences max. Every word earns its place.
-- No AI disclosure. No agency speak. No buzzwords.
-- One CTA — a single link to ${LP} with natural anchor text.
-- Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No <br> tags. No bullet lists.
-- Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
+- Subject line first, on its own line: Subject: <subject>
+- Subject line: 2-5 words. Title Case. Must name a problem or create curiosity — never declare good news.
+  Good: "[N] Reviews, One Blind Spot" / "Patients Can't Find You" / "[City] Chiro Question" / "They Are Choosing Someone Else"
+  Never: anything that sounds reassuring. Subject must pull with a problem or create curiosity.
+- Body: 75-100 words total. Every sentence earns its place.
+- Plain text only — no HTML tags, no markdown, no bullet points.
+- Paragraphs separated by a single blank line.
+- Do NOT open by complimenting the practice — lead with the problem.
+- One specific outcome or proof point per email.
+- CTA is specified per email — follow it exactly.
 - Tone: direct, peer-to-peer. Chiro owners are hands-on — respect the craft, talk business.
-- Sign off inside the final <p>: — Jason
+- Sign off on its own line: — Jason
 `;
 
-const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
+export const chiropracticSequence: SequenceEmail[] = [
 
-  // Day 3 — The visibility gap
   {
-    day: 3,
-    theme: "ICP pitch 1 — the clinical day ends clean, the business day doesn't",
+    day: 1,
+    theme: "Not showing up in AI search — reviews don't fix this",
     buildPrompt: (lead: Lead) => {
-      const rating = lead.rating ? `${lead.rating} stars` : "strong reviews";
-      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "reviews";
+      const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "strong reviews";
+      const rating = lead.rating ? `${lead.rating}-star` : "";
       return `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city} (${rating}, ${reviews}).
+Write a cold email to the owner of ${lead.businessName} in ${lead.city} (${rating} ${reviews}).
 
-The pitch: the clinical day ends clean. The business day doesn't.
-The inbox doesn't know they just finished six hours of focused patient work.
-Most chiro practices have a visibility problem they haven't had time to solve —
-the site ranks for the practice name, not for the conditions they treat or the
-area they serve.
+Structure:
+1. Open with ONE sentence explaining how you found them — e.g. "Found ${lead.businessName} on Google while looking at chiropractic practices in ${lead.city}."
+2. Core pitch: patients are now asking ChatGPT and Claude things like "best chiropractor for lower back pain in ${lead.city}" or "sports chiropractor near me." The AI gives 3-5 names. Most practices are not in that answer — and unlike Google Ads, you cannot buy your way in. The practices that appear have sites built around conditions and neighborhoods, written the way AI reads them. Most chiro sites rank for the practice name only. Invite them to test it: go ask ChatGPT "best chiropractor in ${lead.city}" right now and see if they appear.
+3. End with EXACTLY ONE reply question (one sentence, one question mark) followed by "Just hit reply." on its own line. Make the action completely obvious.
 
-We fix that specifically for chiropractic practices. AI-native site, built for
-local search and condition-level keywords. 14 days to live.
+No link. Reply only.
 
-${PITCH_RULES}`;
+${RULES}`;
     },
   },
 
-  // Day 4 — Removing the practice owner from marketing
   {
-    day: 4,
-    theme: "ICP pitch 2 — marketing that runs without the owner in it",
+    day: 2,
+    theme: "What ranking for conditions actually means",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a direct pitch email to ${lead.businessName} in ${lead.city}.
+Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: most chiro owners are excellent clinicians who didn't sign up to be marketers.
-But the practice grows or stalls based on marketing, not just outcomes.
+The pitch: a page for "lower back pain chiropractor ${lead.city}" — written specifically for what that patient searches — ranks differently than a generic services page. Same for "sports injury chiro near [neighborhood]" and "sciatica treatment ${lead.city}." Practices with 30-40 of these pages see a shift in how new patients find them. The appointments come from people already searching for the condition, not from people who happened to see an ad.
 
-We build the system that handles it — content going out daily, leads followed up automatically,
-the practice showing up where people are actually searching. None of it requires the owner's time.
-They focus on patients. The system handles the rest.
+CTA: reply question — "Is that the kind of new patient flow you are trying to build?" No link.
 
-${PITCH_RULES}`,
+${RULES}`,
   },
 
-  // Day 5 — The close
   {
-    day: 5,
-    theme: "ICP pitch 3 — the offer, the close",
+    day: 3,
+    theme: "What we build — fast site, condition grid, content engine",
     buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
 
-Write a closing pitch to ${lead.businessName} in ${lead.city}.
+Write a pitch email to the owner of ${lead.businessName} in ${lead.city}.
 
-The pitch: three specific things — a site that loads fast and ranks for what people
-actually search for, a content engine producing local SEO content without staff time,
-and automated follow-up that converts the leads that used to go cold.
+Be specific: an AI-native site loading under 2 seconds — most WordPress chiro sites fail Google Core Web Vitals. A page for every condition and every neighborhood in ${lead.city}. Automated content — blog posts, FAQs, Google Business updates — published weekly without any staff time. 14-day build.
 
-14 days. No WordPress. No monthly retainer for advice.
-If ${lead.businessName} is the kind of practice that takes its growth seriously,
-3 minutes in the intake tells us if it's a fit.
+CTA: "See the full build: ${LP}" — include the URL naturally.
 
-${PITCH_RULES}`,
+${RULES}`,
+  },
+
+  {
+    day: 4,
+    theme: "Objection — the clinical day takes everything",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write a short email to the owner of ${lead.businessName} in ${lead.city}.
+
+The pitch: most chiro owners are excellent clinicians who did not sign up to be marketers. But the practice grows or stalls based on visibility, not just outcomes. The problem is most chiro sites rank only for the practice name — not for the conditions treated or the area served. Patients searching "sciatica chiropractor ${lead.city}" at 9pm do not know the name. They go to whoever shows up.
+
+CTA: ${LP} as a plain URL on the last line.
+
+${RULES}`,
+  },
+
+  {
+    day: 5,
+    theme: "Last email — clean close",
+    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+
+Write the final email in a cold sequence to the owner of ${lead.businessName} in ${lead.city}.
+
+2-3 sentences only. Last one. If the new patient discovery gap is real for them, three minutes at ${LP} is the whole ask. No follow-up after this.
+
+CTA: ${LP} as a plain URL on its own line.
+
+${RULES}`,
   },
 
 ];
-
-export const chiropracticSequence = buildICPSequence(spike);

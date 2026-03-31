@@ -21,7 +21,6 @@ import nodemailer from "nodemailer";
 import { db, schema } from "../lib/db";
 import { eq, isNull, or, lte, sql } from "drizzle-orm";
 import { getNextEmail } from "../icp/sequences";
-import { wrapHtml } from "../icp/sequences/email-html";
 
 const { leads } = schema;
 
@@ -82,12 +81,16 @@ async function draftEmail(
   const lines = text.split("\n");
   const subjectLine = lines.find((l) => l.startsWith("Subject:")) ?? "";
   const subject = subjectLine.replace("Subject:", "").trim();
-  const body = lines
+  // Strip any HTML tags the model may have included — we send plain text only
+  const rawBody = lines
     .filter((l) => !l.startsWith("Subject:"))
     .join("\n")
     .trim();
+  const body = rawBody.replace(/<[^>]+>/g, "").replace(/&[a-z]+;/gi, (e) =>
+    ({ "&amp;": "&", "&lt;": "<", "&gt;": ">", "&apos;": "'", "&quot;": '"', "&#39;": "'" }[e] ?? e)
+  );
 
-  return { subject: subject || "Quick question about your website", body: wrapHtml(body) };
+  return { subject: subject || "Quick question", body };
 }
 
 // ── Sending ───────────────────────────────────────────────────────────────────
@@ -146,15 +149,21 @@ async function main() {
   if (id) {
     leadsToProcess = await db.select().from(leads).where(eq(leads.id, id));
   } else {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // Spacing: Day 1 → wait 3 days → Day 2 → wait 5 days → Day 3 → wait 7 days → Day 4+
+    // Indexed by current emailDay (after last send): days to wait before next send
+    const SPACING_DAYS: Record<number, number> = { 1: 3, 2: 5, 3: 7, 4: 7 };
+
     const allLeads = await db.select().from(leads).limit(limit * 3);
     leadsToProcess = allLeads
       .filter((l) => l.website)
-      .filter((l) => l.status !== "bounced")
+      .filter((l) => l.status !== "bounced" && l.status !== "unsubscribed")
       .filter((l) => {
-        if (l.emailDay === 0) return true; // never emailed
-        if (l.emailDay >= 14) return false; // sequence complete
-        return !l.lastEmailedAt || l.lastEmailedAt < yesterday; // due for next
+        if (l.emailDay === 0) return true; // never emailed — send Day 1
+        if (l.emailDay >= 5) return false; // 5-email sequence complete
+        const waitDays = SPACING_DAYS[l.emailDay] ?? 7;
+        const waitMs = waitDays * 24 * 60 * 60 * 1000;
+        const dueAt = new Date(Date.parse(l.lastEmailedAt!) + waitMs).toISOString();
+        return new Date().toISOString() >= dueAt;
       })
       .slice(0, limit);
   }
@@ -216,12 +225,17 @@ async function main() {
     // 4. Send
     process.stdout.write("  Sending... ");
     try {
-      await transporter!.sendMail({
+      const mailOptions: nodemailer.SendMailOptions = {
         from: `Jason Murphy <${process.env.GMAIL_USER}>`,
         to: to ?? emailAddress,
         subject,
-        html: body,
-      });
+        text: body,
+      };
+      // BCC Jason on Day 1
+      if (next.day === 1 && !to) {
+        mailOptions.bcc = process.env.GMAIL_USER;
+      }
+      await transporter!.sendMail(mailOptions);
 
       // 5. Update lead record
       await db.update(leads)
