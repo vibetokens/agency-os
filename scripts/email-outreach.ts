@@ -55,8 +55,18 @@ async function scrapeEmail(
   for (const url of urlsToTry) {
     try {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
-      const html = await page.content();
-      const emails = (html.match(EMAIL_RE) ?? []).filter(isValidEmail);
+
+      // Prefer mailto: links — these are intentional, not embedded template cruft
+      const mailtoEmails = await page.evaluate(() => {
+        const links = Array.from(document.querySelectorAll("a[href^='mailto:']"));
+        return links.map(a => a.getAttribute("href")!.replace(/^mailto:/i, "").split("?")[0].trim());
+      });
+      const validMailto = mailtoEmails.filter(isValidEmail);
+      if (validMailto.length > 0) return validMailto[0];
+
+      // Fallback: scan plain text of the page (more false positives but catches some cases)
+      const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+      const emails = (bodyText.match(EMAIL_RE) ?? []).filter(isValidEmail);
       if (emails.length > 0) return emails[0];
     } catch {
       // skip inaccessible pages
