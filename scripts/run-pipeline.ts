@@ -16,7 +16,12 @@
  *   npm run pipeline -- --email-only        — skip discovery, just send
  */
 
-import "dotenv/config";
+// IMPORTANT: override is required because the shell env may have a stale
+// ANTHROPIC_API_KEY (ending in 1FlwAA) that doesn't match the working key
+// in .env.local (ending in WgAA). Without override, the SDK uses the stale
+// key and returns 401 invalid_api_key. Discovered 2026-04-10.
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import { execSync } from "child_process";
 import { db, schema } from "../lib/db";
 import { eq, and, lt, isNull, or, lte } from "drizzle-orm";
@@ -97,7 +102,7 @@ async function scrapeEmail(website: string, page: import("playwright").Page) {
 
 async function draftEmail(prompt: string, client: Anthropic) {
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 900,
     messages: [{ role: "user", content: prompt }],
   });

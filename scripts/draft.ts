@@ -9,7 +9,8 @@
  *   npx tsx scripts/draft.ts --limit 20
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
 import { db, schema } from "../lib/db";
 import { eq, isNull, inArray } from "drizzle-orm";
@@ -114,7 +115,7 @@ async function main() {
 
     try {
       const message = await client.messages.create({
-        model: "claude-sonnet-4-6",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 300,
         system: buildSystemPrompt(lead.niche, lead.businessName),
         messages: [

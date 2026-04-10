@@ -10,7 +10,8 @@
  *   npm run brief -- --dry-run  — print to console, no email
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import { db, schema } from "../lib/db";
 import { eq } from "drizzle-orm";
 import nodemailer from "nodemailer";

@@ -1,8 +1,8 @@
 /**
  * scripts/publish-post.ts
  *
- * Autonomous content engine — research, write, publish, post to LinkedIn.
- * Runs without Jason. Every post goes live on vibetokens.io + LinkedIn same day.
+ * Autonomous content engine — research, write, publish, post to LinkedIn + Facebook.
+ * Runs without Jason. Every post goes live on vibetokens.io + social same day.
  *
  * Content types:
  *   research  — Claude ecosystem, Claude Code, MCP, AI automation intelligence
@@ -16,7 +16,8 @@
  *   npm run publish-post -- --dry-run         (console only, no publish/post)
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
@@ -91,7 +92,7 @@ category: "research"
 Write the full MDX now. Nothing before or after — just the MDX.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 2500,
     messages: [{ role: "user", content: prompt }],
   });
@@ -139,7 +140,7 @@ category: "build"
 Write the full MDX now. Nothing before or after.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 2500,
     messages: [{ role: "user", content: prompt }],
   });
@@ -156,6 +157,44 @@ Write the full MDX now. Nothing before or after.`;
     .replace(/-+$/, "");
 
   return { mdx, slug, title };
+}
+
+// ── Generate cover image ──────────────────────────────────────────────────────
+
+const HOPPER_DIR = path.resolve("C:/Users/jason/vt-content-hopper");
+
+function generateCoverImage(slug: string, title: string, type: string): string | null {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (!geminiKey) {
+    console.warn("  ⚠ GEMINI_API_KEY not set — skipping image generation");
+    return null;
+  }
+
+  const category = type === "build" ? "builder-moody" : "architecture-systems";
+  const name = `${slug}-cover`;
+  const outPath = path.join(HOPPER_DIR, category, `${name}.jpg`);
+
+  const prompts: Record<string, string> = {
+    "builder-moody": `Dark cinematic workspace. Single open laptop on concrete desk, terminal screen glowing neon mint green (#00FFB2) showing code fragments. Black background, dramatic chiaroscuro lighting. Editorial, moody. No humans. Post context: "${title}".`,
+    "architecture-systems": `Abstract digital architecture visualization. Dark background with neon mint green (#00FFB2) glowing node network, hierarchical tree structure, geometric precision. Cinematic, editorial. No text overlays. Post context: "${title}".`,
+  };
+
+  const prompt = prompts[category] ?? prompts["architecture-systems"];
+
+  console.log(`  → Generating cover image (${category})...`);
+  try {
+    execSync(
+      `python "${path.join(HOPPER_DIR, "generate.py")}" "${prompt.replace(/"/g, "'")}" --category ${category} --name ${name}`,
+      { stdio: "pipe", env: { ...process.env, GEMINI_API_KEY: geminiKey } }
+    );
+    if (fs.existsSync(outPath)) {
+      console.log(`  ✓ Cover image: ${outPath}`);
+      return outPath;
+    }
+  } catch (err: any) {
+    console.error("  ✗ Image generation failed:", err.message ?? err);
+  }
+  return null;
 }
 
 // ── Draft LinkedIn post ───────────────────────────────────────────────────────
@@ -183,8 +222,39 @@ Rules:
 Write the LinkedIn post only. Nothing else.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 600,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  return (msg.content[0] as any).text.trim();
+}
+
+// ── Draft Facebook post ───────────────────────────────────────────────────────
+
+async function draftFacebook(client: Anthropic, title: string, blogMdx: string): Promise<string> {
+  const body = blogMdx.replace(/---[\s\S]*?---/, "").trim().slice(0, 600);
+
+  const prompt = `${VOICE}
+
+Write a Facebook post adapting this blog post. Facebook has a slightly warmer, more direct tone than LinkedIn — same intellectual depth, less corporate. Still no fluff.
+
+Blog title: "${title}"
+Blog opening: ${body}
+
+Rules:
+- 150–250 words
+- Open with the sharpest insight or most provocative line
+- Warmer than LinkedIn but same zero-ICP, architecture-first voice
+- Link to https://vibetokens.io/blog naturally at the end
+- End with a question that invites comments
+- No hashtags
+
+Write the Facebook post only. Nothing else.`;
+
+  const msg = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 500,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -237,26 +307,39 @@ async function main() {
     result = await draftResearchPost(anthropic, topic);
   }
 
-  console.log("  → Drafting LinkedIn post...");
-  const linkedin = await draftLinkedIn(anthropic, result.title, result.mdx);
+  console.log("  → Drafting LinkedIn + Facebook posts...");
+  const [linkedin, facebook] = await Promise.all([
+    draftLinkedIn(anthropic, result.title, result.mdx),
+    draftFacebook(anthropic, result.title, result.mdx),
+  ]);
 
   if (dryRun) {
     console.log("\n══ BLOG MDX ══\n");
     console.log(result.mdx);
     console.log("\n══ LINKEDIN ══\n");
     console.log(linkedin);
+    console.log("\n══ FACEBOOK ══\n");
+    console.log(facebook);
     console.log(`\nSlug would be: ${result.slug}`);
     return;
   }
+
+  // Generate cover image
+  const imagePath = generateCoverImage(result.slug, result.title, type);
 
   // Publish blog
   console.log("\n  Publishing to blog...");
   publishToBlog(result.slug, result.mdx);
 
-  // LinkedIn post (saved to file for Playwright posting)
+  // Stage LinkedIn post
   const liFile = path.join(process.cwd(), "pending-linkedin.txt");
-  fs.writeFileSync(liFile, JSON.stringify({ title: result.title, post: linkedin, slug: result.slug }), "utf8");
-  console.log(`  ✓ LinkedIn post staged at pending-linkedin.txt`);
+  fs.writeFileSync(liFile, JSON.stringify({ title: result.title, post: linkedin, slug: result.slug, imagePath }), "utf8");
+  console.log(`  ✓ LinkedIn post staged → run: npm run post-linkedin`);
+
+  // Stage Facebook post
+  const fbFile = path.join(process.cwd(), "pending-facebook.txt");
+  fs.writeFileSync(fbFile, JSON.stringify({ title: result.title, post: facebook, slug: result.slug, imagePath }), "utf8");
+  console.log(`  ✓ Facebook post staged → run: npm run post-facebook`);
 
   console.log(`\n✓ Published: https://vibetokens.io/blog/${result.slug}`);
   console.log(`  Title: "${result.title}"`);

@@ -10,7 +10,8 @@
  *   npm run check-replies -- --dry-run
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import Database from "better-sqlite3";
 import path from "path";
 import { ImapFlow } from "imapflow";

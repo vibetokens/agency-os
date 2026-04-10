@@ -16,7 +16,8 @@
  *   npm run draft-content -- --ep 3     — force a specific episode number
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
 import nodemailer from "nodemailer";
 import fs from "fs";
@@ -174,7 +175,7 @@ tags: ["the-layer", "attention", "productivity", "ai"]
 Write the full MDX now. No explanatory text before or after — just the MDX.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 2000,
     messages: [{ role: "user", content: prompt }],
   });
@@ -195,16 +196,16 @@ Rules:
 - Architecture-first (lead with the structural insight, not the complaint)
 - Weave in Gloria Mark / UC Irvine 23-minute attention residue stat naturally — cite it specifically, don't just gesture at it
 - Personal voice, no buzzwords, no "I'm thrilled to share"
-- End with a question or invitation that drives to: ${LAYER_LP}
 - ZERO ICP language — no mention of specific niches, industries, client types, or business categories
 - Audience is developers, builders, Claude Code users — talk about what's technically possible and what you're building
 - Nerd references are welcome and encouraged (research citations, technical specifics, architecture concepts)
 - Write like a builder documenting their process publicly, not a consultant pitching services
+- End with TWO lines: (1) a genuine question or observation that invites reflection, then (2) a hard CTA on its own line: "Want this for your business? → vibetokens.io/start"
 
 Write the LinkedIn post only. No explanatory text.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 800,
     messages: [{ role: "user", content: prompt }],
   });
@@ -225,15 +226,16 @@ Rules:
 - Under 280 characters each
 - Each tweet stands alone — no "thread" language
 - Punchy, retweet-worthy
-- At least one should reference Gloria Mark / 23 minutes / attention residue
-- One should end with a question
+- Tweet 1: insight/observation from the episode
+- Tweet 2: the Gloria Mark / 23 minutes / attention residue angle
+- Tweet 3: ends with a CTA — "Built this for my business → vibetokens.io/start" or similar variation
 - No hashtag spam (1 hashtag max per tweet, or none)
 - Voice: direct, slightly dry, respects the reader's intelligence
 
 Return exactly 3 tweets, numbered 1. 2. 3. Nothing else.`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 500,
     messages: [{ role: "user", content: prompt }],
   });
@@ -363,9 +365,14 @@ async function main() {
     html,
   });
 
+  // Stage tweets for auto-posting by post-twitter.ts
+  const pendingTwitter = path.join(process.cwd(), "pending-twitter.txt");
+  fs.writeFileSync(pendingTwitter, JSON.stringify({ title: ep.title, slug: ep.slug, tweets }), "utf8");
+
   console.log(`\n✓ Draft emailed to ${TO}`);
   console.log(`  Subject: ${subject}`);
   console.log(`  Episode: ${epNum} — "${ep.title}" (${ep.slug})`);
+  console.log(`  ✓ Tweets staged → run: npm run post-twitter`);
 }
 
 main().catch((err) => {

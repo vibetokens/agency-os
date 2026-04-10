@@ -22,10 +22,19 @@
     "log-deal": "npx tsx --env-file=.env.local scripts/log-deal.ts",
     "draft-content": "npx tsx --env-file=.env.local scripts/draft-content.ts",
     "publish-post": "npx tsx --env-file=.env.local scripts/publish-post.ts",
-    "post-linkedin": "npx tsx --env-file=.env.local scripts/post-linkedin.ts"
+    "post-linkedin": "npx tsx --env-file=.env.local scripts/post-linkedin.ts",
+    "post-facebook": "npx tsx --env-file=.env.local scripts/post-facebook.ts",
+    "post-twitter": "npx tsx --env-file=.env.local scripts/post-twitter.ts",
+    "post-twitter-thread": "npx tsx --env-file=.env.local scripts/post-twitter-thread.ts",
+    "reply-twitter": "npx tsx --env-file=.env.local scripts/reply-twitter.ts",
+    "brand-facebook-page": "npx tsx --env-file=.env.local scripts/brand-facebook-page.ts",
+    "delete-facebook-posts": "npx tsx --env-file=.env.local scripts/delete-facebook-posts.ts",
+    "delete-facebook-photos": "npx tsx --env-file=.env.local scripts/delete-facebook-photos.ts",
+    "ceo": "npx tsx --env-file=.env.local scripts/ceo-drive.ts",
+    "enrich-emails": "npx tsx --env-file=.env.local scripts/enrich-emails.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
+    "@anthropic-ai/sdk": "^0.87.0",
     "@notionhq/client": "^2.3.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/nodemailer": "^7.0.11",

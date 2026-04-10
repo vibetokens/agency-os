@@ -14,7 +14,8 @@
  *   npm run email -- --id 21 --to me@example.com   — override recipient
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import { chromium } from "playwright";
 import Anthropic from "@anthropic-ai/sdk";
 import nodemailer from "nodemailer";
@@ -82,7 +83,7 @@ async function draftEmail(
   client: Anthropic
 ): Promise<{ subject: string; body: string }> {
   const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-20250514",
     max_tokens: 900,
     messages: [{ role: "user", content: prompt }],
   });

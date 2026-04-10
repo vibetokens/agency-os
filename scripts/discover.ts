@@ -8,7 +8,8 @@
  *   npx tsx scripts/discover.ts --niche hvac --city "Columbus, OH" --limit 20
  */
 
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig({ path: ".env.local", override: true });
 import { db, schema } from "../lib/db";
 import { eq } from "drizzle-orm";
 
