@@ -1,19 +1,23 @@
 # VT OUTREACH — OPERATING SYSTEM
 
-> **Revenue target:** $50k/month via Vibe Tokens. Every decision routes here.
+> **Revenue target:** $5k–$15k/month (April 2026 goal). $199/mo × 25–75 clients = target.
 > **Jason's role:** Approves batches, takes calls, closes deals. Not in the weeds.
 > **Your role:** Run the machine. Discover leads, send sequences, surface call-ready leads, launch ICPs, publish content.
 
 ---
 
-## ACTIVE ICPs
+## ACTIVE ICPs (as of 2026-04-10)
 
 | ICP | Slug | Cities | Daily Target | Status |
 |-----|------|--------|--------------|--------|
-| Med Spa (FL) | med-spa | Gulf Coast FL | 30 | ✅ Active |
-| Claude Consulting | claude-consulting | 10 cities | 20 | ✅ Active |
-| Dental Practices | dental | FL + Southeast | 30 | 🔄 Launch |
-| Chiropractic | chiropractic | FL + Southeast | 30 | 🔄 Launch |
+| Local Service (tree service) | local-service | Ohio → Southeast (15 cities) | 10 | ✅ Active |
+| Med Spa (FL) | med-spa | Gulf Coast FL | 30 | ⏸ Paused |
+| Claude Consulting | claude-consulting | 10 cities | 20 | ⏸ Paused |
+| Dental Practices | dental | FL + Southeast | 30 | ⏸ Paused |
+| Chiropractic | chiropractic | FL + Southeast | 30 | ⏸ Paused |
+| Agency | agency | 10 major metros | 15 | ⏸ Paused |
+
+**Only local-service is running.** It's the best match for the $199/mo Website + Content product (home services = target customer). Reactivated 2026-04-10 at 10/day to validate replies before scaling. Others remain available for reactivation when local-service proves the funnel.
 
 ---
 
@@ -63,7 +67,7 @@ Delegate to `icp-launcher` subagent or execute directly:
 - Reference: `app/med-spa/page.tsx`
 
 ### 5 — Pipeline Config
-`pipeline.config.ts` → add ICP with 10 cities, dailyTarget: 30, active: true
+`pipeline.config.ts` → add ICP with 10-15 cities, dailyTarget: 10 (start low, scale after replies prove the funnel), active: true
 
 ### 6 — Discover Initial Leads
 ```
@@ -85,6 +89,42 @@ cd /c/Users/jason/vibetokens && git add app/[slug]/ && git commit -m "Add [ICP] 
 
 ### 9 — Activate + Report
 Set `active: true`. Report: leads queued, first email subjects, landing page URL.
+
+---
+
+## POWER FLAGS — Revenue Engine
+
+**Default invocation for anything content or sequence-related:**
+```
+claude --effort max
+```
+
+**Parallel ICP launch — run all pending ICPs simultaneously:**
+```
+CLAUDE_CODE_COORDINATOR_MODE=1 claude
+# then: "Launch dental and chiropractic simultaneously"
+```
+Script: `C:\Users\jason\claude-scripts\launch-all-icps.ps1`
+
+**Parallel lead discovery — multiple cities at once:**
+```
+CLAUDE_CODE_COORDINATOR_MODE=1 claude -p "Discover leads: dental Tampa FL 30, dental Orlando FL 30, dental Miami FL 30"
+```
+
+**Bulk sequence generation — all 4 ICPs get fresh sequences in one run:**
+```
+CLAUDE_CODE_COORDINATOR_MODE=1 claude -p "Rewrite Day 1-3 emails for med-spa, dental, chiropractic, claude-consulting simultaneously. Tighter hooks."
+```
+
+**Safe ICP development — isolated branch per ICP:**
+```
+claude --worktree -w dental-launch
+```
+
+**Session start ritual:**
+1. Load `ops-monitor` → get pipeline status
+2. Run `/dream` → consolidate recent session memory
+3. Check lead pool per ICP → queue discovery if any below 50
 
 ---
 
@@ -125,16 +165,19 @@ When a pipeline bug or sequence issue is found: fix it, check all active ICPs fo
 
 ---
 
-## REVENUE MODEL
+## REVENUE MODEL (updated 2026-04-10)
 
 | Stream | Price | Target |
 |--------|-------|--------|
-| Starter Website | $1,500 one-time | 5/month |
-| Growth Retainer | $800/month | 30 clients |
-| Claude Consulting | $2,500 entry + $800/mo | 5/month |
-| 80-to-Claude Guide | $79 | Volume |
+| Website + Content | $199/mo | 25–75 clients |
+| Content Bolt-On | $99/mo | Upsell for clients with existing sites |
+| Claude Consulting | Scoped | Enterprise / custom engagements |
 
-Path to $50k: 30 retainers × $800 = $24k base + consulting closes = target.
+**Core productized offering is $199/mo flat.** No contracts. Same-day delivery. Cancel anytime. Owns the code. Everything routes to `vibetokens.io/start` (free audit) → `/onboard` → subscription.
+
+April 2026 goal: $5k–$15k MRR growth (25–75 new clients). Current: ~$2,400 MRR, 3 clients, 20% audit-to-client conversion rate.
+
+**DO NOT reference the old pricing model** ($1,500 Starter, $800/mo Growth, $750 Local Presence Pro) anywhere in sequences, emails, or landing pages. Those tiers are retired.
 
 ---
 
