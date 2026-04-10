@@ -19,6 +19,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
@@ -174,11 +175,13 @@ tags: ["the-layer", "attention", "productivity", "ai"]
 
 Write the full MDX now. No explanatory text before or after — just the MDX.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 2000,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   return (msg.content[0] as any).text.trim();
 }
@@ -204,11 +207,13 @@ Rules:
 
 Write the LinkedIn post only. No explanatory text.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 800,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   return (msg.content[0] as any).text.trim();
 }
@@ -234,11 +239,13 @@ Rules:
 
 Return exactly 3 tweets, numbered 1. 2. 3. Nothing else.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 500,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   const raw = (msg.content[0] as any).text.trim();
   return raw

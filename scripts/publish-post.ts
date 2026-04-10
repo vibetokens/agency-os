@@ -19,6 +19,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
@@ -91,11 +92,13 @@ category: "research"
 
 Write the full MDX now. Nothing before or after — just the MDX.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 2500,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   const mdx = (msg.content[0] as any).text.trim();
 
@@ -139,11 +142,13 @@ category: "build"
 
 Write the full MDX now. Nothing before or after.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 2500,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   const mdx = (msg.content[0] as any).text.trim();
   const titleMatch = mdx.match(/^title:\s*["'](.+?)["']/m);
@@ -221,11 +226,13 @@ Rules:
 
 Write the LinkedIn post only. Nothing else.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 600,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   return (msg.content[0] as any).text.trim();
 }
@@ -252,11 +259,13 @@ Rules:
 
 Write the Facebook post only. Nothing else.`;
 
-  const msg = await client.messages.create({
+  const msg = await withRetry(() =>
+    client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 500,
     messages: [{ role: "user", content: prompt }],
-  });
+  }),
+  );
 
   return (msg.content[0] as any).text.trim();
 }

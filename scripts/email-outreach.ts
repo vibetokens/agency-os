@@ -18,6 +18,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import { chromium } from "playwright";
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import nodemailer from "nodemailer";
 import { db, schema } from "../lib/db";
 import { eq, isNull, or, lte, sql } from "drizzle-orm";
@@ -82,11 +83,13 @@ async function draftEmail(
   prompt: string,
   client: Anthropic
 ): Promise<{ subject: string; body: string }> {
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 900,
-    messages: [{ role: "user", content: prompt }],
-  });
+  const message = await withRetry(() =>
+    client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 900,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  );
 
   const text = message.content[0].type === "text" ? message.content[0].text.trim() : "";
   const lines = text.split("\n");

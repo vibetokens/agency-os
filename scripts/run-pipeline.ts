@@ -28,6 +28,7 @@ import { eq, and, lt, isNull, or, lte } from "drizzle-orm";
 import { PIPELINE } from "../pipeline.config";
 import { getIcp } from "../icp/sequences";
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import nodemailer from "nodemailer";
 import { chromium } from "playwright";
 import { getNextEmail } from "../icp/sequences";
@@ -101,11 +102,13 @@ async function scrapeEmail(website: string, page: import("playwright").Page) {
 // ── Email drafting ────────────────────────────────────────────────────────────
 
 async function draftEmail(prompt: string, client: Anthropic) {
-  const msg = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 900,
-    messages: [{ role: "user", content: prompt }],
-  });
+  const msg = await withRetry(() =>
+    client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 900,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  );
   const text = msg.content[0].type === "text" ? msg.content[0].text.trim() : "";
   const lines = text.split("\n");
   const subject = (lines.find((l) => l.startsWith("Subject:")) ?? "")

@@ -19,6 +19,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import { db, schema } from "../lib/db";
 import { spawn } from "child_process";
 import fs from "fs";
@@ -138,12 +139,14 @@ Based on this data, give me:
 
 Format it for Telegram. No markdown headers. Keep it under 300 words. Make it feel like a real CEO talking, not a report.`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 500,
-    messages: [{ role: "user", content: userPrompt }],
-    system: systemPrompt,
-  });
+  const message = await withRetry(() =>
+    client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 500,
+      messages: [{ role: "user", content: userPrompt }],
+      system: systemPrompt,
+    }),
+  );
 
   return (message.content[0] as any).text;
 }

@@ -12,6 +12,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import Anthropic from "@anthropic-ai/sdk";
+import { withRetry } from "../lib/anthropic-retry";
 import { db, schema } from "../lib/db";
 import { eq, isNull, inArray } from "drizzle-orm";
 
@@ -114,17 +115,19 @@ async function main() {
     process.stdout.write(`[${post.id}] ${lead.businessName} (${profile.platform})... `);
 
     try {
-      const message = await client.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 300,
-        system: buildSystemPrompt(lead.niche, lead.businessName),
-        messages: [
-          {
-            role: "user",
-            content: buildUserPrompt(post.postText!, profile.platform),
-          },
-        ],
-      });
+      const message = await withRetry(() =>
+        client.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 300,
+          system: buildSystemPrompt(lead.niche, lead.businessName),
+          messages: [
+            {
+              role: "user",
+              content: buildUserPrompt(post.postText!, profile.platform),
+            },
+          ],
+        }),
+      );
 
       const draft =
         message.content[0].type === "text" ? message.content[0].text.trim() : "";
