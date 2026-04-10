@@ -39,7 +39,7 @@ export const PIPELINE: IcpConfig[] = [
     ],
     landingPage: "https://vibetokens.io/med-spa",
     dailyTarget: 30,
-    active: true,
+    active: false,
   },
 
   {
@@ -59,7 +59,7 @@ export const PIPELINE: IcpConfig[] = [
     ],
     landingPage: "https://vibetokens.io/dental",
     dailyTarget: 30,
-    active: true,
+    active: false,
   },
 
   {
@@ -79,10 +79,12 @@ export const PIPELINE: IcpConfig[] = [
     ],
     landingPage: "https://vibetokens.io/chiropractic",
     dailyTarget: 30,
-    active: true,
+    active: false,
   },
 
   // ── Vibe Tokens Local Division ───────────────────────────────────────────────
+  // REACTIVATED 2026-04-10 — best fit for $199/mo Website + Content product.
+  // Starting at 10/day to validate sequence + replies before scaling up.
   {
     niche: "tree service",
     slug: "local-service",
@@ -104,7 +106,7 @@ export const PIPELINE: IcpConfig[] = [
       "Baltimore Maryland",
     ],
     landingPage: "https://vibetokens.io/local-service",
-    dailyTarget: 30,
+    dailyTarget: 10,
     active: true,
   },
 
@@ -125,6 +127,6 @@ export const PIPELINE: IcpConfig[] = [
     ],
     landingPage: "https://vibetokens.io/agency",
     dailyTarget: 15,
-    active: true,
+    active: false,
   },
 ];
