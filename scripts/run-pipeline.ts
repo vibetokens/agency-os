@@ -22,6 +22,19 @@
 // key and returns 401 invalid_api_key. Discovered 2026-04-10.
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
+
+// ── PAUSE GATE ────────────────────────────────────────────────────────────────
+// Set PIPELINE_PAUSED=true in .env.local or the shell to short-circuit the
+// nightly cron without commenting out scheduler entries.
+//
+// Paused 2026-04-10 because the audit funnel is broken against the Abilene case
+// (see TONIGHT.md). Unpause ONLY after the Audit Integrity Gate in
+// vibetokens/lib/audit/deliver.ts is live and tested.
+if (process.env.PIPELINE_PAUSED === "true") {
+  console.log("[pipeline] PIPELINE_PAUSED=true — skipping this run");
+  console.log("[pipeline] Unset PIPELINE_PAUSED in .env.local to resume");
+  process.exit(0);
+}
 import { execSync } from "child_process";
 import { db, schema } from "../lib/db";
 import { eq, and, lt, isNull, or, lte } from "drizzle-orm";
