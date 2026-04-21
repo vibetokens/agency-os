@@ -39,7 +39,7 @@ const ICP_REGISTRY = [
     landing: "https://vibetokens.io/agency",
   },
   {
-    niches: ["tree service", "tree removal", "landscaping", "lawn care", "hvac", "roofing", "plumbing", "gutter", "cleaning service", "house cleaning", "concrete", "pressure washing", "pest control", "electrical", "handyman", "painting", "flooring"],
+    niches: ["tree service", "tree removal", "landscaping", "lawn care", "hvac", "roofing", "plumbing", "plumber", "gutter", "cleaning service", "house cleaning", "concrete", "pressure washing", "pest control", "electrical", "electrician", "handyman", "painting", "flooring"],
     sequence: localServiceSequence,
     landing: "https://vibetokens.io/local-service",
   },
@@ -52,7 +52,7 @@ export function getIcp(lead: Lead) {
   ) ?? null;
 }
 
-export function getNextEmail(lead: Lead): { day: number; prompt: string } | null {
+export function getNextEmail(lead: Lead): { day: number; prompt?: string; direct?: { subject: string; body: string } } | null {
   const icp = getIcp(lead);
 
   // No ICP match — skip rather than send wrong landing page
@@ -62,5 +62,12 @@ export function getNextEmail(lead: Lead): { day: number; prompt: string } | null
   const email = icp.sequence.find((e) => e.day === nextDay);
   if (!email) return null;
 
-  return { day: nextDay, prompt: email.buildPrompt(lead) };
+  // Prefer direct templates (no API call) over prompt-based drafting
+  if (email.buildDirect) {
+    return { day: nextDay, direct: email.buildDirect(lead) };
+  }
+  if (email.buildPrompt) {
+    return { day: nextDay, prompt: email.buildPrompt(lead) };
+  }
+  return null;
 }

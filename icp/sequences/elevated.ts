@@ -24,7 +24,7 @@ Rules:
 - Voice: Dan Koe elevation + Tim Denning raw honesty + Tom Bilyeau intensity.
 - Write like Bilyeau — short punchy sentences. One idea per sentence. Whitespace is emphasis.
 - First person, documented experience — journal, not lecture.
-- Sign off inside the final <p>: — Jason
+- Sign off inside the final <p>: — Murph
 `;
 
 // ── Days 1–2: Elevated intro ──────────────────────────────────────────────────

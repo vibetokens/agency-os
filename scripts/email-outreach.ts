@@ -19,7 +19,7 @@ dotenvConfig({ path: ".env.local", override: true });
 import { chromium } from "playwright";
 import Anthropic from "@anthropic-ai/sdk";
 import { withRetry } from "../lib/anthropic-retry";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { db, schema } from "../lib/db";
 import { eq, isNull, or, lte, sql } from "drizzle-orm";
 import { getNextEmail } from "../icp/sequences";
@@ -109,14 +109,8 @@ async function draftEmail(
 
 // ── Sending ───────────────────────────────────────────────────────────────────
 
-function createTransport() {
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  });
+function createResendClient() {
+  return new Resend(process.env.RESEND_API_KEY);
 }
 
 // ── CLI args ──────────────────────────────────────────────────────────────────
@@ -146,13 +140,13 @@ async function main() {
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error("ANTHROPIC_API_KEY not set"); process.exit(1);
   }
-  if (!dryRun && !process.env.GMAIL_APP_PASSWORD) {
-    console.error("GMAIL_APP_PASSWORD not set. Get one at myaccount.google.com/apppasswords");
+  if (!dryRun && !process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY not set.");
     process.exit(1);
   }
 
   const client = new Anthropic();
-  const transporter = dryRun ? null : createTransport();
+  const resend = dryRun ? null : createResendClient();
 
   // Fetch leads
   // A lead is "due" if:
@@ -239,17 +233,15 @@ async function main() {
     // 4. Send
     process.stdout.write("  Sending... ");
     try {
-      const mailOptions: nodemailer.SendMailOptions = {
-        from: `Jason Murphy <${process.env.GMAIL_USER}>`,
-        to: to ?? emailAddress,
+      const sendTo = to ?? emailAddress;
+      const bcc = (next.day === 1 && !to) ? "jasonmatthewmurphy@gmail.com" : undefined;
+      await resend!.emails.send({
+        from: "Murph <hello@vibetokens.io>",
+        to: sendTo,
         subject,
         text: body,
-      };
-      // BCC Jason on Day 1
-      if (next.day === 1 && !to) {
-        mailOptions.bcc = process.env.GMAIL_USER;
-      }
-      await transporter!.sendMail(mailOptions);
+        ...(bcc ? { bcc } : {}),
+      });
 
       // 5. Update lead record
       await db.update(leads)

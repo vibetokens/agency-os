@@ -15,7 +15,7 @@ Rules:
 - Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags. No <br> tags. No bullet lists.
 - Links: <a href="${LP}" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
 - Tone: peer-to-peer. One operator talking to another. Data-first. Never salesy.
-- Sign off inside the final <p>: — Jason
+- Sign off inside the final <p>: — Murph
 `;
 
 const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
@@ -24,7 +24,7 @@ const spike: [SequenceEmail, SequenceEmail, SequenceEmail] = [
   {
     day: 3,
     theme: "ICP pitch 1 — the AI gap is the business risk",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a direct pitch email to ${lead.businessName} in ${lead.city}.
 
@@ -48,7 +48,7 @@ ${PITCH_RULES}`,
   {
     day: 4,
     theme: "ICP pitch 2 — your clients are about to ask",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a direct pitch email to ${lead.businessName} in ${lead.city}.
 
@@ -66,7 +66,7 @@ ${PITCH_RULES}`,
   {
     day: 5,
     theme: "ICP pitch 3 — concrete offer, two entry points, close",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a closing pitch to ${lead.businessName} in ${lead.city}.
 
@@ -93,7 +93,7 @@ Rules:
 - No AI disclosure. No agency speak. No buzzwords.
 - Two links, formatted as: <a href="URL" style="color:#1a1a1a;font-weight:700;text-decoration:underline;">anchor text</a>
 - Paragraphs as <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:#1a1a1a;"> tags.
-- Sign off inside the final <p>: — Jason`,
+- Sign off inside the final <p>: — Murph`,
   },
 
 ];

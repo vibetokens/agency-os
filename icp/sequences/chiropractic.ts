@@ -22,7 +22,7 @@ Rules:
 - One specific outcome or proof point per email.
 - CTA is specified per email — follow it exactly.
 - Tone: direct, peer-to-peer. Chiro owners are hands-on — respect the craft, talk business.
-- Sign off on its own line: — Jason
+- Sign off on its own line: — Murph
 `;
 
 export const chiropracticSequence: SequenceEmail[] = [
@@ -33,7 +33,7 @@ export const chiropracticSequence: SequenceEmail[] = [
     buildPrompt: (lead: Lead) => {
       const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "strong reviews";
       const rating = lead.rating ? `${lead.rating}-star` : "";
-      return `You are Jason Murphy, founder of Vibe Tokens.
+      return `You are Murph, the voice of Vibe Tokens.
 
 Write a cold email to the owner of ${lead.businessName} in ${lead.city} (${rating} ${reviews}).
 
@@ -51,7 +51,7 @@ ${RULES}`;
   {
     day: 2,
     theme: "What ranking for conditions actually means",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -65,7 +65,7 @@ ${RULES}`,
   {
     day: 3,
     theme: "What we build — fast site, condition grid, content engine",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a pitch email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -79,7 +79,7 @@ ${RULES}`,
   {
     day: 4,
     theme: "Objection — the clinical day takes everything",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a short email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -93,7 +93,7 @@ ${RULES}`,
   {
     day: 5,
     theme: "Last email — clean close",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write the final email in a cold sequence to the owner of ${lead.businessName} in ${lead.city}.
 

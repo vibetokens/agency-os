@@ -42,7 +42,7 @@ import { PIPELINE } from "../pipeline.config";
 import { getIcp } from "../icp/sequences";
 import Anthropic from "@anthropic-ai/sdk";
 import { withRetry } from "../lib/anthropic-retry";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { chromium } from "playwright";
 import { getNextEmail } from "../icp/sequences";
 import { wrapHtml } from "../icp/sequences/email-html";
@@ -153,10 +153,7 @@ async function main() {
   console.log(`Active ICPs: ${activeIcps.map((i) => i.slug).join(", ")}\n`);
 
   const client = new Anthropic();
-  const transporter = dryRun ? null : nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-  });
+  const resend = dryRun ? null : new Resend(process.env.RESEND_API_KEY);
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
@@ -171,8 +168,13 @@ async function main() {
     if (!emailOnly) {
       // Count unstarted leads for this ICP
       const all = await db.select().from(leads);
+      const LOCAL_SERVICE_NICHES = ["tree service", "electrician", "hvac", "plumber", "landscaping", "roofing", "painting", "cleaning"];
+      const matchesIcp = (niche: string) =>
+        icp.slug === "local-service"
+          ? LOCAL_SERVICE_NICHES.some((n) => niche.toLowerCase().includes(n))
+          : niche.toLowerCase().includes(icp.niche);
       const unstarted = all.filter(
-        (l) => l.niche.toLowerCase().includes(icp.niche) && l.emailDay === 0 && l.website
+        (l) => matchesIcp(l.niche) && l.emailDay === 0 && l.website
       );
 
       const BUFFER = icp.dailyTarget * 3; // keep 3 days of leads in reserve
@@ -206,7 +208,12 @@ async function main() {
         if (l.emailDay === 0) return true;  // never emailed
         return !l.lastEmailedAt || l.lastEmailedAt < yesterday;
       })
-      .filter((l) => l.niche.toLowerCase().includes(icp.niche))
+      .filter((l) => {
+        const LOCAL_SERVICE_NICHES = ["tree service", "electrician", "hvac", "plumber", "landscaping", "roofing", "painting", "cleaning"];
+        return icp.slug === "local-service"
+          ? LOCAL_SERVICE_NICHES.some((n) => l.niche.toLowerCase().includes(n))
+          : l.niche.toLowerCase().includes(icp.niche);
+      })
       .slice(0, icp.dailyTarget);
 
     console.log(`  ${due.length} leads due for email today`);
@@ -232,8 +239,15 @@ async function main() {
       const next = getNextEmail(lead);
       if (!next) { console.log("sequence complete"); continue; }
 
-      // Draft
-      const { subject, body } = await draftEmail(next.prompt, client);
+      // Draft — use direct template if available, fall back to API
+      let subject: string, body: string;
+      if (next.direct) {
+        ({ subject, body } = next.direct);
+      } else if (next.prompt) {
+        ({ subject, body } = await draftEmail(next.prompt, client));
+      } else {
+        console.log("no template or prompt"); continue;
+      }
 
       if (dryRun) {
         console.log(`"${subject}" [dry run]`);
@@ -242,8 +256,8 @@ async function main() {
 
       // Send
       try {
-        await transporter!.sendMail({
-          from: `Jason Murphy <${process.env.GMAIL_USER}>`,
+        await resend!.emails.send({
+          from: "Murph <hello@vibetokens.io>",
           to: emailAddress,
           subject,
           html: body,

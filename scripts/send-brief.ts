@@ -14,7 +14,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig({ path: ".env.local", override: true });
 import { db, schema } from "../lib/db";
 import { eq } from "drizzle-orm";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { ImapFlow } from "imapflow";
 import fs from "fs";
 import path from "path";
@@ -644,13 +644,10 @@ async function main() {
 
   const html = buildHtml({ callList: topCalls, outreachStats, stripe: stripeData, dbClients, content, inbox: inboxData, socialQueue, toptalInbox });
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-  });
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
-  await transporter.sendMail({
-    from: `VibeTokens OS <${process.env.GMAIL_USER}>`,
+  await resend.emails.send({
+    from: "Murph — VibeTokens OS <hello@vibetokens.io>",
     to: TO,
     subject,
     html,

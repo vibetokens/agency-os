@@ -9,7 +9,7 @@ Rules:
 - Short sentences throughout. Scannable on a phone.
 - Confident, direct, real. Not an agency. Not a template. One guy who built something.
 - Never mention previous emails in the sequence. Each one stands alone.
-- Sign off: Jason, vibetokens.io
+- Sign off: Murph, vibetokens.io
 `;
 
 export const genericSequence: Sequence = [
@@ -19,7 +19,7 @@ export const genericSequence: Sequence = [
     buildPrompt: (lead: Lead) => {
       const rating = lead.rating ? `${lead.rating} stars` : "strong reviews";
       const reviews = lead.reviewCount ? `${lead.reviewCount} reviews` : "reviews";
-      return `You are Jason Murphy, founder of Vibe Tokens (vibetokens.io).
+      return `You are Murph, the voice of Vibe Tokens (vibetokens.io).
 
 You built a system that moves local service businesses from whatever slow site they're running
 to a modern, fast site that performs. Daily content targeting their city, services, nearby towns,
@@ -45,7 +45,7 @@ ${RULES}`;
   ...Array.from({ length: 13 }, (_, i) => ({
     day: i + 2,
     theme: `Day ${i + 2}`,
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens (vibetokens.io).
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens (vibetokens.io).
 Write a short cold email (day ${i + 2} of a 14-day sequence) to ${lead.businessName} in ${lead.city}.
 Focus on a specific pain point relevant to local service businesses on day ${i + 2} of the sequence.
 Keep it short, direct, HTML formatted with <br> line breaks and 3 links to vibetokens.io.

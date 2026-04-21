@@ -22,7 +22,7 @@ Rules:
 - Include ONE specific outcome or proof point — no vague claims.
 - CTA is specified per email — follow it exactly.
 - Tone: peer-level. You have run an agency. You solved this problem. You are not selling to them.
-- Sign off on its own line: — Jason
+- Sign off on its own line: — Murph
 `;
 
 export const agencySequence: SequenceEmail[] = [
@@ -30,7 +30,7 @@ export const agencySequence: SequenceEmail[] = [
   {
     day: 1,
     theme: "Owner as ceiling — specific proof, reply CTA",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -47,7 +47,7 @@ ${RULES}`,
   {
     day: 2,
     theme: "Tool users vs infrastructure builders — the gap is widening",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a cold email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -61,7 +61,7 @@ ${RULES}`,
   {
     day: 3,
     theme: "What the layer looks like — concrete, link CTA",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a pitch email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -75,7 +75,7 @@ ${RULES}`,
   {
     day: 4,
     theme: "Objection — we already use AI tools",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write a short email to the owner of ${lead.businessName} in ${lead.city}.
 
@@ -89,7 +89,7 @@ ${RULES}`,
   {
     day: 5,
     theme: "Last email — 2-3 sentences, clean close",
-    buildPrompt: (lead: Lead) => `You are Jason Murphy, founder of Vibe Tokens.
+    buildPrompt: (lead: Lead) => `You are Murph, the voice of Vibe Tokens.
 
 Write the final email in a cold sequence to the owner of ${lead.businessName} in ${lead.city}.
 
