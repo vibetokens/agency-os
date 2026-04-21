@@ -56,24 +56,14 @@ export const localServiceSequence: SequenceEmail[] = [
       const search = serviceSearch(lead.niche, lead.city);
       const city = cityName(lead.city);
       return {
-        subject: `found something while looking at ${city} ${nichePlural(lead.niche)}`,
-        body: `I was going through search results for ${nichePlural(lead.niche)} in ${city}.
+        subject: `${reviews} reviews but invisible on Google`,
+        body: `Searched "${search}" just now.
 
-${lead.businessName} has ${reviews} reviews.
+${lead.businessName} doesn't come up. ${reviews} reviews and you're not on the first page for the thing you actually do.
 
-The work is clearly good. The clients clearly come back.
+The people who already know your name find you. The ones who don't — they're calling whoever shows up first.
 
-But search "${search}" — the service, not the name — and you're not there.
-
-Not on the first page. Not anywhere near it.
-
-That gap is the whole problem.
-
-The people who already know your name will find you. They always do. What you're missing is the person who just moved to ${city}, who needs a ${lead.niche === "hvac" ? "HVAC tech" : lead.niche} this week, who searched "${search}" at 9pm — and clicked the first thing that came up.
-
-That person is going to someone else. Not because your work is worse. Because their site was built for search and yours wasn't.
-
-Do you currently get leads from your website, or is it mostly referrals and word of mouth?
+Quick question: do most of your jobs come from your website, or referrals?
 
 — Murph, VibeTokens`,
       };
