@@ -38,8 +38,8 @@ export const PIPELINE: IcpConfig[] = [
       "Boca Raton Florida",
     ],
     landingPage: "https://vibetokens.io/med-spa",
-    dailyTarget: 30,
-    active: false,
+    dailyTarget: 25,
+    active: true,
   },
 
   {
@@ -58,8 +58,8 @@ export const PIPELINE: IcpConfig[] = [
       "Nashville Tennessee",
     ],
     landingPage: "https://vibetokens.io/dental",
-    dailyTarget: 30,
-    active: false,
+    dailyTarget: 25,
+    active: true,
   },
 
   {
@@ -106,7 +106,7 @@ export const PIPELINE: IcpConfig[] = [
       "Baltimore Maryland",
     ],
     landingPage: "https://vibetokens.io/local-service",
-    dailyTarget: 10,
+    dailyTarget: 25,
     active: true,
   },
 
